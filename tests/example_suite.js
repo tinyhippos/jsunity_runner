@@ -19,6 +19,7 @@
         test_example_two: function(){
             $.assertions.assertNotNull(null);
         }
+        
     };
 
 }(jsUnity));

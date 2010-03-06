@@ -14,7 +14,7 @@
     <div class="layout">
         <div id="runner">
         
-            <form name="runner_form" action="javascript: return(false);" onsubmit="jsUnityWrapper.Runner.run(this.runner_selector.value);" method="post">
+            <form name="runner_form" onsubmit="jsUnityWrapper.Runner.run(this.runner_selector.value); return false;" method="post">
                 <select id="runner_selector" name="runner_selector">
 					<option value="all">All</option>
                 </select>

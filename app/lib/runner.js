@@ -22,24 +22,26 @@ var jsUnityWrapper = { Tests: {} };
 
 		loadTests: function (){
 			var suite;
-			
+
 			for (suite in $.Tests){
 				if($.Tests.hasOwnProperty(suite)){
 					_suites.push($.Tests[suite]);
 					this.loadOption($.Tests[suite]);
 				}
 			}
-			
+
 		},
 
 		loadOption: function (suite){
-			
-			var el = document.createElement("option");
-			el.setAttribute("value", suite.toString());
-			el.innerHTML = suite.suiteName || "Uknown Test Suite";
-			
+
+			var el = document.createElement("option"),
+				suite = suite.suiteName || "Uknown Test Suite";
+				
+			el.setAttribute("value", suite);
+			el.innerHTML = suite;
+
 			document.getElementById(_RUNNER_SELECTOR).appendChild(el);
-			
+
 		},
         
         logError: function (e){
