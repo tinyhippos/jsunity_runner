@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>jsUnityWrapper</title>
+    <link rel="stylesheet" type="text/css" href="app/lib/css/styles.css"/>
+
+    <script type="text/javascript" src="app/jsunity/jsunity-0.6.js"></script>
+    <script type="text/javascript" src="app/lib/runner.js"></script>
+    <script type="text/javascript" src="tests/example_suite.js"></script>
+  </head>
+  <body>
+    
+    <div class="layout">
+        <div id="runner">
+        
+            <form name="runner_form" action="javascript: return(false);" onsubmit="jsUnityWrapper.Runner.run(this.runner_selector.value);" method="post">
+                <select id="runner_selector" name="runner_selector">
+					<option value="all">All</option>
+                </select>
+                <button name="runner_submit">Run</button>
+                <button onclick="location.reload(); return false;">Reload</button>
+            </form>
+            
+        </div>
+		<div id="logger"></div>
+    </div>
+    
+  </body>
+</html>
