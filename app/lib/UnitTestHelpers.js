@@ -1,5 +1,5 @@
 // ----------------- Test Helpers ----------------- \\
-(jsUnityWrapper.UnitTestHelpers = function ($){
+(jsUnityRunner.UnitTestHelpers = function ($){
 
     //takes an array of arguments and returns a subset
     // was going to use something like Array.slice but arguments is weird half Array with no .slice method
@@ -89,4 +89,4 @@
         
     };
     
-}(jsUnityWrapper));
+}(jsUnityRunner));

@@ -1,4 +1,4 @@
-(jsUnityWrapper.Tests.ExampleSuite = function($){
+(jsUnityRunner.Tests.ExampleSuite =  function($j, $){
 
     return {
         
@@ -13,13 +13,13 @@
         },
 
         test_example: function(){
-            $.assertions.assertNotNull(1);
+            $j.assertions.assertNotNull(1);
         },
 
         test_example_two: function(){
-            $.assertions.assertNotNull(null);
+            $j.assertions.assertNotNull(null);
         }
         
     };
 
-}(jsUnity));
+}(jsUnity, jsUnityRunner));

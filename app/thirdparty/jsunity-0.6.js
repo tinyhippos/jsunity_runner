@@ -9,7 +9,7 @@
  *
  *
  * Modified March 2010 by: Brent Lintner
- * Purpose: abstract logging to jsUnityWrapper
+ * Purpose: abstract logging to jsUnityRunner
  * 
  */
 
@@ -355,14 +355,14 @@ jsUnity = (function () {
                 var cnt = suite.tests.length;
 
                 // ----------------------------------- \\
-                    jsUnityWrapper.Logger.startSuite(arguments[i], cnt, plural(cnt, "test"));
+                    jsUnityRunner.Logger.startSuite(arguments[i], cnt, plural(cnt, "test"));
                 // ----------------------------------- //
     
                 suiteNames.push(suite.suiteName);
                 results.total += cnt;
 
                 // ----------------------------------- \\
-                    jsUnityWrapper.Logger.updateAmountOfTests(cnt);
+                    jsUnityRunner.Logger.updateAmountOfTests(cnt);
                 // ----------------------------------- //
 
                 for (var j = 0; j < cnt; j++) {
@@ -376,14 +376,14 @@ jsUnity = (function () {
                         results.passed++;
 
                         // ----------------------------------- \\
-                            jsUnityWrapper.Logger.passTest(test);
+                            jsUnityRunner.Logger.passTest(test);
                         // ----------------------------------- //
                         
                     } catch (e) {
                         suite.tearDown && suite.tearDown();
 
                         // ----------------------------------- \\
-                            jsUnityWrapper.Logger.failTest(test, e);
+                            jsUnityRunner.Logger.failTest(test, e);
                         // ----------------------------------- //
                         
                     }
@@ -395,7 +395,7 @@ jsUnity = (function () {
             results.duration = jsUnity.env.getDate() - start;
 
             // ----------------------------------- \\
-                jsUnityWrapper.Logger.updateResults(results);
+                jsUnityRunner.Logger.updateResults(results);
             // ----------------------------------- //
 
             return results;

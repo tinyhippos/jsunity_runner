@@ -1,4 +1,4 @@
-(jsUnityWrapper.Exception = function ($){
+(jsUnityRunner.Exception = function ($){
 
 	return {
 
@@ -44,4 +44,4 @@
 
 	};
 
-}(jsUnityWrapper));
+}(jsUnityRunner));

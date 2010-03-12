@@ -1,5 +1,5 @@
 // ----------------- Utils ----------------- \\
-(jsUnityWrapper.Utils = function ($){
+(jsUnityRunner.Utils = function ($){
 
     return {
 
@@ -78,4 +78,4 @@
         
     };
     
-}(jsUnityWrapper));
+}(jsUnityRunner));

@@ -34,10 +34,10 @@
 					<option value="all">All</option>
                 </select>
                 
-                <button name="runner_submit" onclick="jsUnityWrapper.Runner.run(runner_form.runner_selector.value, runner_form.runner_verbose.checked);">Run</button>
+                <button name="runner_submit" onclick="jsUnityRunner.Runner.run(runner_form.runner_selector.value, runner_form.runner_verbose.checked);">Run</button>
                 
                 <button onclick="location.reload(); return false;">Reload</button>
-                <button onclick="jsUnityWrapper.Logger.clear(); return false;">Clear</button>
+                <button onclick="jsUnityRunner.Logger.clear(); return false;">Clear</button>
                 
                 <input type="checkbox" name="runner_verbose" value="1" />Verbose
                 

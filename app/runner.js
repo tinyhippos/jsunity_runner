@@ -1,8 +1,8 @@
-var jsUnityWrapper = { Tests: {} };
+var jsUnityRunner = { Tests: {} };
 
 // ----------------- Runner ----------------- \\
 
-(jsUnityWrapper.Runner = function ($){
+(jsUnityRunner.Runner = function ($){
 
 	var _RUNNER_SELECTOR = 'runner_selector',
 		_MARKUP_DIV = 'markup',
@@ -73,20 +73,20 @@ var jsUnityWrapper = { Tests: {} };
         
     };
     
-}(jsUnityWrapper));
+}(jsUnityRunner));
 
 // ----------------- Initializations ----------------- \\
 
 window.addEventListener("load", function (){
-	jsUnityWrapper.Runner.loadTests();
+	jsUnityRunner.Runner.loadTests();
 });
 
 
 jsUnity.error = function (eStr){
-    jsUnityWrapper.Logger.logError(eStr);
+    jsUnityRunner.Logger.logError(eStr);
 }
 
 
 jsUnity.log = function (eStr){
-    jsUnityWrapper.Logger.log(eStr);
+    jsUnityRunner.Logger.log(eStr);
 }

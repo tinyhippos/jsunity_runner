@@ -1,5 +1,5 @@
 // ----------------- Error/Log handling ----------------- \\
-(jsUnityWrapper.Logger = function ($){
+(jsUnityRunner.Logger = function ($){
 
     var LOGGER_DIV = "test_logger",
 		INFO_LOGGER_DIV = "info_logger",
@@ -74,4 +74,4 @@
         
     };
     
-}(jsUnityWrapper));
+}(jsUnityRunner));
