@@ -6,6 +6,11 @@
  * Copyright (c) 2009 Ates Goral
  * Licensed under the MIT license.
  * http://www.opensource.org/licenses/mit-license.php
+ *
+ *
+ * Modified March 2010 by: Brent Lintner
+ * Purpose: abstract logging to jsUnityWrapper
+ * 
  */
 
 jsUnity = (function () {
@@ -329,8 +334,7 @@ jsUnity = (function () {
             } else if (typeof v === "string") {
                 return parseSuiteString(v);
             } else {
-                throw "Argument must be a function, array, object, string or "
-                    + "TestSuite instance.";
+                throw "Argument must be a function, array, object, string or " + "TestSuite instance.";
             }
         },
 
@@ -350,12 +354,16 @@ jsUnity = (function () {
 
                 var cnt = suite.tests.length;
 
-                this.log("<br /><strong>Running "
-                    + (suite.suiteName || "unnamed test suite") + "</strong>");
-                this.log(plural(cnt, "test") + " found");
+                // ----------------------------------- \\
+                    jsUnityWrapper.Logger.startSuite(arguments[i], cnt, plural(cnt, "test"));
+                // ----------------------------------- //
     
                 suiteNames.push(suite.suiteName);
                 results.total += cnt;
+
+                // ----------------------------------- \\
+                    jsUnityWrapper.Logger.updateAmountOfTests(cnt);
+                // ----------------------------------- //
 
                 for (var j = 0; j < cnt; j++) {
                     var test = suite.tests[j];
@@ -367,11 +375,17 @@ jsUnity = (function () {
 
                         results.passed++;
 
-                        this.log('<span style="color: green;">[PASSED]</span>&nbsp;&nbsp;' + test.name);
+                        // ----------------------------------- \\
+                            jsUnityWrapper.Logger.passTest(test);
+                        // ----------------------------------- //
+                        
                     } catch (e) {
                         suite.tearDown && suite.tearDown();
 
-                        this.log('<span style="color: red;">[FAILED]</span>&nbsp;&nbsp;&nbsp;&nbsp;' + test.name + ": " + e);
+                        // ----------------------------------- \\
+                            jsUnityWrapper.Logger.failTest(test, e);
+                        // ----------------------------------- //
+                        
                     }
                 }
             }
@@ -380,10 +394,9 @@ jsUnity = (function () {
             results.failed = results.total - results.passed;
             results.duration = jsUnity.env.getDate() - start;
 
-            this.log("<br /><br /><strong>RESULTS:</strong><br />");
-            this.log(plural(results.passed, "test") + " passed");
-            this.log(plural(results.failed, "test") + " failed");
-            this.log(plural(results.duration, "millisecond") + " elapsed");
+            // ----------------------------------- \\
+                jsUnityWrapper.Logger.updateResults(results);
+            // ----------------------------------- //
 
             return results;
         }

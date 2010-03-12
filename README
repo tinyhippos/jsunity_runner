@@ -1,5 +1,29 @@
-(this is still in development, check back later)
+jsUnitRunner : A lightweight wrapper GUI for testing using jsUnity.
 
-A lightweight wrapper GUI for testing using jsUnity.
+(this is still in development, check back later) or see the jsUnity wiki: http://code.google.com/p/jsunity/w/list
 
-jsUnity wiki: http://code.google.com/p/jsunity/w/list
+
+* Notes *
+
+Currently being developed and tested in Chrome.
+It is also (at this time) most likey using Rhino (or other untested engines) will fail.
+But Universal support (as per the jsUnity way) will be a definite goal.
+
+
+* Licensed Under *
+
+The MIT License (http://www.opensource.org/licenses/mit-license.php)
+
+Copyright (c) 2010 all contributors:
+
+Brent Lintner
+
+
+
+* Referenced Code *
+
+jsUnity : Universal JavaScript Testing Framework
+
+http://jsunity.com/
+
+Copyright (c) 2009 Ates Goral (MIT license), see also source file for original license.

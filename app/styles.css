@@ -6,9 +6,6 @@ html, body{
   margin: 0;
   padding: 0;
   border: 0;
-  width: 100%;
-  height: 100%;
-  font-family: Arial, sans-serif;
 }
 body{ font-size: 0.81em; }
 
@@ -61,16 +58,62 @@ h3{ font-size: 1.00em; }
  */
 
 .layout{
-	width: 100%;
-	height: 100%;
-    padding: 2em;
-    margin: 0 auto;
-    position: relative;
+    font-family: Monospace, sans-serif;
+    margin: 1em auto;
+    height: 94%;
+    width: 94%;
     color: #1E1E1E;
-    border: 1px solid #CCCCCC;
     background: #FFFFFF;
+    overflow-y: auto;
 }
 
-#logger{
+#test_logger, #info_logger{
+    padding: 0.75em;
     overflow: auto;
+    border: 1px solid #AAAAAA;
+    margin: 1em auto;
+}
+
+#test_logger{
+    height: 350px;
+}
+
+#info_logger{
+    height: 200px;
+}
+
+
+
+#progress{
+    padding: 0.25em 0.5em;
+    height: 1.25em;
+    margin: 0.25em;
+    float: right;
+    width: 200px;
+    position: relative;
+}
+
+#progress_text{
+    text-align: right;
+    width: 100%;
+    color: #333333;
+    z-index: 860;
+    position: relative;
+}
+
+#progress_left, #progress_right{
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 800;
+}
+
+#progress_left{
+    background: green;
+
+}
+
+#progress_right{
+    background: #F0F0F0;
 }

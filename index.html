@@ -3,28 +3,58 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>jsUnityWrapper</title>
-    <link rel="stylesheet" type="text/css" href="app/lib/css/styles.css"/>
+    <link rel="stylesheet" type="text/css" href="app/styles.css"/>
 
-    <script type="text/javascript" src="app/jsunity/jsunity-0.6.js"></script>
-    <script type="text/javascript" src="app/lib/runner.js"></script>
+    <script type="text/javascript" src="app/thirdparty/jsunity-0.6.js"></script>
+    
+    <script type="text/javascript" src="app/runner.js"></script>
+    <script type="text/javascript" src="app/lib/Logger.js"></script>
+    <script type="text/javascript" src="app/lib/Exception.js"></script>
+    <script type="text/javascript" src="app/lib/UnitTestHelper.js"></script>
+    <script type="text/javascript" src="app/lib/Utils.js"></script>
+    
     <script type="text/javascript" src="tests/example_suite.js"></script>
+    <script type="text/javascript" src="tests/another_suite.js"></script>
+    <script type="text/javascript" src="tests/more_suites/blarg_suite.js"></script>
   </head>
   <body>
-    
     <div class="layout">
+    
+        <div id="progress">
+            <div id="progress_text"></div>
+            <div id="progress_left" style="width: 0;"></div>
+            <div id="progress_right" style="width: 100%;"></div>
+        </div>
+        
         <div id="runner">
         
-            <form name="runner_form" onsubmit="jsUnityWrapper.Runner.run(this.runner_selector.value); return false;" method="post">
+            <form name="runner_form" onsubmit="return false;" method="get">
+            
                 <select id="runner_selector" name="runner_selector">
 					<option value="all">All</option>
                 </select>
-                <button name="runner_submit">Run</button>
+                
+                <button name="runner_submit" onclick="jsUnityWrapper.Runner.run(runner_form.runner_selector.value, runner_form.runner_verbose.checked);">Run</button>
+                
                 <button onclick="location.reload(); return false;">Reload</button>
+                <button onclick="jsUnityWrapper.Logger.clear(); return false;">Clear</button>
+                
+                <input type="checkbox" name="runner_verbose" value="1" />Verbose
+                
             </form>
             
         </div>
-		<div id="logger"></div>
+
+        <div id="test_logger"></div>
+        <div id="info_logger"></div>
+        
     </div>
-    
+
+    <!-- ------------------------------------------- -->
+    <div id="markup" class="irrelevant">
+        <!-- Markup Here -->
+    </div>
+    <!-- ------------------------------------------- -->
+
   </body>
 </html>

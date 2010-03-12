@@ -2,22 +2,28 @@ var jsUnityWrapper = { Tests: {} };
 
 // ----------------- Runner ----------------- \\
 
-(jsUnityWrapper.Runner = function ($){
+(jsUnityWrapper.LibTests = function ($){
 
-	var _LOGGER_DIV = "logger",
-		_RUNNER_SELECTOR = 'runner_selector',
+	var _RUNNER_SELECTOR = 'runner_selector',
 		_suites = [];
 
     return {
 
-        run: function (){
-			var suite;
+        run: function (whatToRun){
 
-			for (suite in _suites){
-				jsUnity.run(_suites[suite]);
-			}
-			
-			_suites = [];
+			$.Logger.clear();
+
+            $.Logger.verbose = verbose || false;
+
+            switch (whatToRun) {
+                
+                case "all":
+					jsUnity.run.apply(jsUnity, _suites);
+                    break;
+                default:
+                    throw {name: "TestSuiteException", message: "Uknown test suite, can not run Test Suite(s)." };
+            }
+
         },
 
 		loadTests: function (){
@@ -43,24 +49,30 @@ var jsUnityWrapper = { Tests: {} };
 			document.getElementById(_RUNNER_SELECTOR).appendChild(el);
 
 		},
-        
+
+		verbose: false,
+
         logError: function (e){
             this.log('<span style="color: red;"><br/>'+e.stack+"<br/>");
         },
 
         log: function (e){
-            document.getElementById(_LOGGER_DIV).innerHTML += "<br />"+e;
+            document.getElementById(LOGGER_DIV).innerHTML += "<br />"+e;
+        },
+        
+        note: function (e){
+            if(this.verbose){
+                document.getElementById(LOGGER_DIV).innerHTML += "<br /><span style=\"color: #FF4848\">"+e+"<span>";
+            }
         },
 
         clear: function (){
-            document.getElementById(_LOGGER_DIV).innerHTML = "";
+            document.getElementById(LOGGER_DIV).innerHTML = "";
         }
         
     };
     
 }(jsUnityWrapper));
-
-
 
 // ----------------- Initializations ----------------- \\
 
