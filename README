@@ -1,4 +1,4 @@
-jsUnitRunner : A lightweight wrapper GUI for testing using jsUnity.
+jsUnityRunner : A lightweight wrapper GUI for testing using jsUnity.
 
 (this is still in development, check back later) or see the jsUnity wiki: http://code.google.com/p/jsunity/w/list
 
@@ -6,8 +6,8 @@ jsUnitRunner : A lightweight wrapper GUI for testing using jsUnity.
 * Notes *
 
 Currently being developed and tested in Chrome.
-It is also (at this time) most likey using Rhino (or other untested engines) will fail.
-But Universal support (as per the jsUnity way) will be a definite goal.
+At this time using Rhino (or other untested engines) will most likely fail.
+But! Universal support (as per the jsUnity way) will be a definite goal.
 
 
 * Licensed Under *
