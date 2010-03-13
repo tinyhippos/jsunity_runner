@@ -3,19 +3,24 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>jsUnityRunner</title>
-    <link rel="stylesheet" type="text/css" href="app/styles.css"/>
 
+	<link rel="stylesheet" type="text/css" href="app/css/styles.css"/>
     <script type="text/javascript" src="app/thirdparty/jsunity-0.6.js"></script>
-    
-    <script type="text/javascript" src="app/runner.js"></script>
+    <script type="text/javascript" src="app/init.js"></script>
+    <script type="text/javascript" src="app/lib/Constants.js"></script>
+    <script type="text/javascript" src="app/lib/Runner.js"></script>
     <script type="text/javascript" src="app/lib/Logger.js"></script>
     <script type="text/javascript" src="app/lib/Exception.js"></script>
     <script type="text/javascript" src="app/lib/UnitTestHelper.js"></script>
     <script type="text/javascript" src="app/lib/Utils.js"></script>
-    
+
+
+    <!-- Your Test Cases Here -->
     <script type="text/javascript" src="tests/example_suite.js"></script>
     <script type="text/javascript" src="tests/another_suite.js"></script>
     <script type="text/javascript" src="tests/more_suites/blarg_suite.js"></script>
+    <!-- Your Test Cases Here -->
+    
   </head>
   <body>
     <div class="layout">
@@ -36,9 +41,9 @@
                 <button name="runner_submit" onclick="jsUnityRunner.Runner.run(runner_form.runner_selector.value, runner_form.runner_verbose.checked);">Run</button>
                 
                 <button onclick="location.reload(); return false;">Reload</button>
-                <button onclick="jsUnityRunner.Logger.clear(); return false;">Clear</button>
+                <button onclick="jsUnityRunner.Runner.clear(); return false;">Clear</button>
                 
-				<br/><input type="checkbox" name="runner_verbose" value="1" />Verbose
+				<label>Verbose</label><input type="checkbox" name="runner_verbose" value="1" />
                 
             </form>
             
@@ -49,7 +54,7 @@
         
     </div>
 
-    <!-- ------------------------------------------- -->
+    <!-- ----------------------- TEST MARKUP HERE ------------------------------ -->
     <div id="markup" class="irrelevant">
 
 		<div id="tinyhippos-ppi" class="tinyhippos-irrelevant"></div>
@@ -250,7 +255,7 @@
 		</section>
 
     </div>
-    <!-- ------------------------------------------- -->
+    <!-- ----------------------- TEST MARKUP HERE ------------------------------ -->
 
   </body>
 </html>

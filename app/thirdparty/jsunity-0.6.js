@@ -355,14 +355,14 @@ jsUnity = (function () {
                 var cnt = suite.tests.length;
 
                 // ----------------------------------- \\
-                    jsUnityRunner.Logger.startSuite(arguments[i], cnt, plural(cnt, "test"));
+                    jsUnityRunner.Runner.startSuite(arguments[i], cnt, plural(cnt, "test"));
                 // ----------------------------------- //
     
                 suiteNames.push(suite.suiteName);
                 results.total += cnt;
 
                 // ----------------------------------- \\
-                    jsUnityRunner.Logger.updateAmountOfTests(cnt);
+                    jsUnityRunner.Runner.updateAmountOfTests(cnt);
                 // ----------------------------------- //
 
                 for (var j = 0; j < cnt; j++) {
@@ -376,14 +376,14 @@ jsUnity = (function () {
                         results.passed++;
 
                         // ----------------------------------- \\
-                            jsUnityRunner.Logger.passTest(test);
+                            jsUnityRunner.Runner.passTest(test);
                         // ----------------------------------- //
                         
                     } catch (e) {
                         suite.tearDown && suite.tearDown();
 
                         // ----------------------------------- \\
-                            jsUnityRunner.Logger.failTest(test, e);
+                            jsUnityRunner.Runner.failTest(test, e);
                         // ----------------------------------- //
                         
                     }
@@ -395,7 +395,7 @@ jsUnity = (function () {
             results.duration = jsUnity.env.getDate() - start;
 
             // ----------------------------------- \\
-                jsUnityRunner.Logger.updateResults(results);
+				if(jsUnityRunner){ jsUnityRunner.Runner.updateResults(results); }
             // ----------------------------------- //
 
             return results;
