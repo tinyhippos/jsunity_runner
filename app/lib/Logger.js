@@ -3,9 +3,8 @@
 
     var LOGGER_DIV = "test_logger",
 		INFO_LOGGER_DIV = "info_logger",
-		PROGRESS_RIGHT = "progress_right",
-		PROGRESS_LEFT = "progress_left",
-		PROGRESS_DIV = "progress_text";
+		PROGRESS_DIV = "progress_text",
+		PROGRESS_SCROLL = "progress_scroll";
 
     return {
 
@@ -30,6 +29,10 @@
         clear: function (){
             document.getElementById(LOGGER_DIV).innerHTML = "";
             document.getElementById(INFO_LOGGER_DIV).innerHTML = "";
+            document.getElementById(PROGRESS_SCROLL).style.width = 0;
+            document.getElementById(PROGRESS_DIV).innerHTML = "";
+            this.amountOfTests = 0;
+            this.amountOfCompletedTests = 0;
         },
 
 		updateResults: function (results){
@@ -41,8 +44,8 @@
 
 		updateProgress: function (){
 			this.amountOfCompletedTests++;
-			document.getElementById(PROGRESS_DIV).innerHTML = this.amountOfCompletedTests + " / " + this.amountOfTests;
-			document.getElementById('PROGRESS_RIGHT');
+			document.getElementById(PROGRESS_DIV).innerHTML = this.amountOfCompletedTests + " /" + this.amountOfTests;
+			document.getElementById(PROGRESS_SCROLL).style.width = ((this.amountOfCompletedTests / this.amountOfTests) * 100) + "%";
 		},
 
 		updateAmountOfTests: function (suiteLength){
