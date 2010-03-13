@@ -1,6 +1,14 @@
-jsUnityRunner : A lightweight wrapper GUI for testing using jsUnity.
+jsUnityRunner : A lightweight Test Runner for jsUnity.
 
-(this is still in development, check back later) or see the jsUnity wiki: http://code.google.com/p/jsunity/w/list
+v0.1 (master) - 03-13-2010
+	- basic progress bar
+	- verbose output
+	- added number of library classes (Exception, Utils, Logger, UnitTestHelpers, Runner)
+	- auto detects test suites (that are specified index.html), examples are there as well
+	- can reset global markup after each suite.
+
+See the jsUnity Wiki as well.
+jsUnity wiki: http://code.google.com/p/jsunity/w/list
 
 
 * Notes *
