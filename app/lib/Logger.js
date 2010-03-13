@@ -12,15 +12,17 @@
         amountOfTests: 0,
         amountOfCompletedTests: 0,
 
-        infoLog: function (e){
-            document.getElementById(INFO_LOGGER_DIV).innerHTML += e + "<br />";
+        warn: function (e){
+			if(this.verbose){
+				document.getElementById(INFO_LOGGER_DIV).innerHTML += e + "<br />";
+			}
         },
 
         log: function (e){
             document.getElementById(LOGGER_DIV).innerHTML += e + "<br />";
         },
         
-        note: function (e){
+        debug: function (e){
             if(this.verbose){
                 document.getElementById(INFO_LOGGER_DIV).innerHTML += "<span style=\"color: #FF4848\">"+e+"</span><br />";
             }
@@ -59,7 +61,7 @@
 
 		failTest: function (test, error){
 			this.log('<span style="color: red;">[FAILED]</span>&nbsp;&nbsp;' + test.name + ' :: ' + error);
-			this.infoLog(test.name + " --> " + error);
+			this.warn(test.name + " --> " + error);
 			this.updateProgress();
 		},
 
@@ -69,8 +71,8 @@
 				$.Runner.resetMarkup();
 			}
 			
-			this.infoLog("<strong>Running " + (suite.suiteName || "unnamed test suite") + "</strong>");
-			this.infoLog(countStr + " found");
+			this.warn("<strong>Running " + (suite.suiteName || "unnamed test suite") + "</strong>");
+			this.warn(countStr + " found");
 			this.log("------- " + suite.suiteName + "-------");
 		}
 		

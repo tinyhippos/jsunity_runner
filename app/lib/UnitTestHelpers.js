@@ -29,7 +29,7 @@
         
         try{ func.apply(namespace, funcArgs); }
         catch (e){
-            $.Logger.note("handled exception --> "+(e.name || e.type)+" :: "+e.message);
+            $.Logger.warn("handled exception --> "+(e.name || e.type)+" :: "+e.message);
             if(e.stack){ $.Logger.note("Stack --> "+e.stack); }
             
             if(typeof callback === 'function'){
