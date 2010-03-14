@@ -1,22 +1,57 @@
 jsUnityRunner : A lightweight Test Runner for jsUnity.
 
-v0.1 (master) - 03-13-2010
-	- basic progress bar
-	- verbose output
-	- added number of library classes (Exception, Utils, Logger, UnitTestHelpers, Runner)
-	- auto detects test suites (that are specified index.html), examples are there as well
-	- can reset global markup after each suite.
+Check out the Wiki for detailed info and releases.
+  http://wiki.github.com/tinyhippos/jsUnityRunner/
 
 See the jsUnity Wiki as well.
-jsUnity wiki: http://code.google.com/p/jsunity/w/list
+  jsUnity wiki: http://code.google.com/p/jsunity/w/list
 
 
-* Notes *
+
+------ Notes
 
 Currently being developed and tested in Chrome.
 At this time using Rhino (or other untested engines) will most likely fail.
 But! Universal support (as per the jsUnity way) will be a definite goal.
 
+
+
+------ Getting Started
+
+Place a test file anywhere you want (though tests/ is recommended).
+Then just include it in index.html along with other tests. jsUnityRunner will pick up on it.
+
+* Options
+	resetMarkup: resets the test markup before starting suite
+
+
+(jsUnityRunner.Tests.AnotherSuite = function($j, $){
+
+    return {
+        
+        suiteName: "-- Another Suite",
+
+        resetMarkup: true,
+
+        setUp: function(){ },
+        
+        tearDown: function(){ },
+
+        test_example: function(){
+            $j.assertions.assertNotNull(1);
+        },
+
+        test_example_two: function(){
+            $j.assertions.assertNotNull(null);
+        }
+        
+    };
+
+}(jsUnity, jsUnityRunner));
+
+
+
+------ Attributions
 
 * Licensed Under *
 
@@ -28,7 +63,7 @@ Brent Lintner
 
 
 
-* Referenced Code *
+* Other References *
 
 jsUnity : Universal JavaScript Testing Framework
 
