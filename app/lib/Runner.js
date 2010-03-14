@@ -13,10 +13,10 @@
 		
 		// Public Methods
         run: function (whatToRun, verbose){
-
+			var i;
 			try{
 
-				_markup = document.getElementById($.Constants.RUNNER_SELECTOR).innerHTML;
+				//_markup = document.getElementById($.Constants.RUNNER_SELECTOR).innerHTML;
 
 				this.clear();
 
@@ -25,8 +25,11 @@
 				switch (whatToRun) {
 					
 					case "all":
-					
-						jsUnity.run.apply(jsUnity, _suites);
+
+						setTimeout(function(){
+							jsUnity.run.apply(jsUnity, _suites);
+						},0);
+						
 						break;
 
 					default:
@@ -34,7 +37,9 @@
 						if(!_suites[parseInt(whatToRun, 10)]){
 							$.Exception.raise($.Exception.types.TestSuite, "Uknown test suite, can not run Test Suite(s).");
 						}else{
-							jsUnity.run(_suites[parseInt(whatToRun, 10)]);
+							setTimeout(function(){
+								jsUnity.run(_suites[parseInt(whatToRun, 10)]);
+							},0);
 						}
 						
 				}
@@ -44,6 +49,8 @@
 				$.Logger.log(e);
 				$.Exception.handle(e);
 			}
+
+			return false;
 
         },
 
@@ -112,9 +119,9 @@
 
 		startSuite: function (suite, count, countStr){
 
-			if(suite.resetMarkup === true) {
-				this.resetMarkup();
-			}
+			//if(suite.resetMarkup === true) {
+				//this.resetMarkup();
+			//}
 			
 			$.Logger.warn("<strong>Running " + (suite.suiteName || "unnamed test suite") + "</strong>");
 			$.Logger.warn(countStr + " found");
@@ -125,4 +132,6 @@
     };
     
 }(jsUnityRunner));
+
+
 
