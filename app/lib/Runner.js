@@ -29,13 +29,7 @@
 					case "all":
 
 						for (i = 0; i < _suites.length; i++){
-							
-							setTimeout(function (x){
-								return(function(){
-										jsUnity.run(_suites[x]);
-									});
-							}(i), 0);
-							
+							jsUnity.run(_suites[i]);
 						}
 						
 						break;

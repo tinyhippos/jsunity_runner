@@ -5,7 +5,7 @@
     }
 
 	return {
-
+		// TODO: need to do in a better way, so tests are sequential yet multi threaded when possible.
 		run: function(){
 
 			var results = new jsUnity.TestResults(),
