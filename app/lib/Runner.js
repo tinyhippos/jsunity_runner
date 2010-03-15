@@ -6,7 +6,7 @@
 		_markup,
 		_amountOfTests = 0,
 		_amountOfCompletedTests = 0,
-		_progress_colour = "#40D940";
+		_progress_failed = false;
 
     return {
 
@@ -18,6 +18,7 @@
 			try{
 
 				_markup = document.getElementById($.Constants.RUNNER_SELECTOR).innerHTML;
+				_progress_failed = false;
 
 				this.clear();
 
@@ -107,7 +108,7 @@
 			_amountOfCompletedTests++;
 			document.getElementById($.Constants.PROGRESS_DIV).innerHTML = _amountOfCompletedTests + " /" + _amountOfTests;
 			document.getElementById($.Constants.PROGRESS_SCROLL).style.width = ((_amountOfCompletedTests / _amountOfTests) * 100) + "%";
-			document.getElementById($.Constants.PROGRESS_SCROLL).style.backgroundColor = _progress_colour;
+			document.getElementById($.Constants.PROGRESS_SCROLL).style.backgroundColor = (_progress_failed ? "red" : "#40D940");
 		},
 
 		updateAmountOfTests: function (suiteLength){
@@ -120,7 +121,7 @@
 		},
 
 		failTest: function (test, error){
-			_progress_colour = "red";
+			_progress_failed = true;
 			$.Logger.log('[FAILED]  ' + test.name + ' :: ' + error, "red");
 			$.Logger.warn(test.name + " --> " + error);
 			this.updateProgress();
