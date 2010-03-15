@@ -5,7 +5,8 @@
 	var _suites = [],
 		_markup,
 		_amountOfTests = 0,
-		_amountOfCompletedTests = 0;
+		_amountOfCompletedTests = 0,
+		_progress_failed = false;
 
     return {
 
@@ -13,10 +14,11 @@
 		
 		// Public Methods
         run: function (whatToRun, verbose){
-
+			var i;
 			try{
 
 				_markup = document.getElementById($.Constants.RUNNER_SELECTOR).innerHTML;
+				_progress_failed = false;
 
 				this.clear();
 
@@ -25,8 +27,11 @@
 				switch (whatToRun) {
 					
 					case "all":
-					
-						jsUnity.run.apply(jsUnity, _suites);
+
+						for (i = 0; i < _suites.length; i++){
+							jsUnity.run(_suites[i]);
+						}
+						
 						break;
 
 					default:
@@ -34,7 +39,9 @@
 						if(!_suites[parseInt(whatToRun, 10)]){
 							$.Exception.raise($.Exception.types.TestSuite, "Uknown test suite, can not run Test Suite(s).");
 						}else{
-							jsUnity.run(_suites[parseInt(whatToRun, 10)]);
+							setTimeout(function(){
+								jsUnity.run(_suites[parseInt(whatToRun, 10)]);
+							},0);
 						}
 						
 				}
@@ -44,6 +51,8 @@
 				$.Logger.log(e);
 				$.Exception.handle(e);
 			}
+
+			return false;
 
         },
 
@@ -93,6 +102,7 @@
 			_amountOfCompletedTests++;
 			document.getElementById($.Constants.PROGRESS_DIV).innerHTML = _amountOfCompletedTests + " /" + _amountOfTests;
 			document.getElementById($.Constants.PROGRESS_SCROLL).style.width = ((_amountOfCompletedTests / _amountOfTests) * 100) + "%";
+			document.getElementById($.Constants.PROGRESS_SCROLL).style.backgroundColor = (_progress_failed ? "red" : "#40D940");
 		},
 
 		updateAmountOfTests: function (suiteLength){
@@ -100,12 +110,13 @@
 		},
 
 		passTest: function (test){
-			$.Logger.log('[PASSED]' + test.name, "green");
+			$.Logger.log('[PASSED]  ' + test.name, "green");
 			this.updateProgress();
 		},
 
 		failTest: function (test, error){
-			$.Logger.log('[FAILED]' + test.name + ' :: ' + error, "red");
+			_progress_failed = true;
+			$.Logger.log('[FAILED]  ' + test.name + ' :: ' + error, "red");
 			$.Logger.warn(test.name + " --> " + error);
 			this.updateProgress();
 		},
@@ -125,4 +136,6 @@
     };
     
 }(jsUnityRunner));
+
+
 

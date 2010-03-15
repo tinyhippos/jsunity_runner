@@ -6,6 +6,7 @@ html, body{
   margin: 0;
   padding: 0;
   border: 0;
+  background: url() #FFFFFF !important;
 }
 body{ font-size: 0.81em; }
 
@@ -75,11 +76,13 @@ h3{ font-size: 1.00em; }
 }
 
 #test_logger{
+    max-height: 350px;
     height: 350px;
 }
 
 #info_logger{
-    height: 200px;
+    max-height: 250px;
+    height: 250px;
 }
 
 
@@ -107,7 +110,6 @@ h3{ font-size: 1.00em; }
 }
 
 #progress_scroll{
-	background: #40D940;
 	position: absolute;
 	z-index: 830;
 	height: 100%;

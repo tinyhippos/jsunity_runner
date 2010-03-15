@@ -7,13 +7,17 @@
 
         warn: function (msg){
 			if(this.verbose){
-				document.getElementById($.Constants.INFO_LOGGER_DIV).innerHTML += msg + "<br />";
+				var d = document.getElementById($.Constants.INFO_LOGGER_DIV);
+				d.innerHTML += msg + "<br />";
+				d.scrollTop = d.scrollHeight;
 			}
         },
 
         log: function (msg, colour){
+			var d = document.getElementById($.Constants.LOGGER_DIV);
 			colour = colour || "#000000";
-			document.getElementById($.Constants.LOGGER_DIV).innerHTML += '<span style="color:' + colour + ';">' + msg + "</span><br />";
+			d.innerHTML += '<span style="color:' + colour + ';">' + msg + "</span><br />";
+			d.scrollTop = d.scrollHeight;
         },
 
 		error: function (msg){
