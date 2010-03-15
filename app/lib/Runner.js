@@ -5,7 +5,8 @@
 	var _suites = [],
 		_markup,
 		_amountOfTests = 0,
-		_amountOfCompletedTests = 0;
+		_amountOfCompletedTests = 0,
+		_progress_colour = "#40D940";
 
     return {
 
@@ -16,7 +17,7 @@
 			var i;
 			try{
 
-				//_markup = document.getElementById($.Constants.RUNNER_SELECTOR).innerHTML;
+				_markup = document.getElementById($.Constants.RUNNER_SELECTOR).innerHTML;
 
 				this.clear();
 
@@ -26,9 +27,15 @@
 					
 					case "all":
 
-						setTimeout(function(){
-							jsUnity.run.apply(jsUnity, _suites);
-						},0);
+						for (i = 0; i < _suites.length; i++){
+							
+							setTimeout(function (x){
+								return(function(){
+										jsUnity.run(_suites[x]);
+									});
+							}(i), 0);
+							
+						}
 						
 						break;
 
@@ -100,6 +107,7 @@
 			_amountOfCompletedTests++;
 			document.getElementById($.Constants.PROGRESS_DIV).innerHTML = _amountOfCompletedTests + " /" + _amountOfTests;
 			document.getElementById($.Constants.PROGRESS_SCROLL).style.width = ((_amountOfCompletedTests / _amountOfTests) * 100) + "%";
+			document.getElementById($.Constants.PROGRESS_SCROLL).style.backgroundColor = _progress_colour;
 		},
 
 		updateAmountOfTests: function (suiteLength){
@@ -107,21 +115,22 @@
 		},
 
 		passTest: function (test){
-			$.Logger.log('[PASSED]' + test.name, "green");
+			$.Logger.log('[PASSED]  ' + test.name, "green");
 			this.updateProgress();
 		},
 
 		failTest: function (test, error){
-			$.Logger.log('[FAILED]' + test.name + ' :: ' + error, "red");
+			_progress_colour = "red";
+			$.Logger.log('[FAILED]  ' + test.name + ' :: ' + error, "red");
 			$.Logger.warn(test.name + " --> " + error);
 			this.updateProgress();
 		},
 
 		startSuite: function (suite, count, countStr){
 
-			//if(suite.resetMarkup === true) {
-				//this.resetMarkup();
-			//}
+			if(suite.resetMarkup === true) {
+				this.resetMarkup();
+			}
 			
 			$.Logger.warn("<strong>Running " + (suite.suiteName || "unnamed test suite") + "</strong>");
 			$.Logger.warn(countStr + " found");

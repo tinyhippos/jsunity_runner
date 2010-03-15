@@ -56,21 +56,21 @@
 
 								$.Runner.failTest(test, e);
 							}
-
-							if(x >= args_len){
-								
-								results.suiteName = suiteNames.join(",");
-								results.failed = results.total - results.passed;
-								results.duration = jsUnity.env.getDate() - start;
-
-								$.Runner.updateResults(results);
-
-							}
 							
 						});
 					}(i, j),0);
 					
 				}
+
+				//if(x >= args_len){
+								
+					//results.suiteName = suiteNames.join(",");
+					//results.failed = results.total - results.passed;
+					//results.duration = jsUnity.env.getDate() - start;
+
+					//$.Runner.updateResults(results);
+
+				//}
 				
 			}
 
