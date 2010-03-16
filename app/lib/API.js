@@ -1,80 +1,123 @@
 (jsUnityRunner.API = function ($){
 
-	function plural(cnt, unit) {
+	var _results = new jsUnity.TestResults(),
+		_suites = [],
+		_suiteNames = [],
+		_synchronusSuiteIndex,
+		_synchronusTestIndex;
+
+	function _plural(cnt, unit) {
         return cnt + " " + unit + (cnt == 1 ? "" : "s");
     }
 
+	function _finalizeResults(startTime){
+		
+		_results.suiteName = suiteNames.join(",");
+		_results.failed = results.total - results.passed;
+		_results.duration = jsUnity.env.getDate() - startTime;
+
+		$.Runner.updateResults(results);
+		
+	}
+
 	return {
-		// TODO: need to do in a better way, so tests are sequential yet multi threaded when possible.
-		run: function(){
 
-			var results = new jsUnity.TestResults(),
-				suiteNames = [],
-				start = jsUnity.env.getDate(),
-				i, j, cnt, test, suite,
-				args_len = arguments.length;
+		synchronusTest: function (){
 
+			var suite = _suites[_synchronusSuiteIndex],
+				test = _suites[_synchronusSuiteIndex].tests[_synchronusTestIndex];
 
-			for (i = 0; i < args_len; i++) {
+			try{
 				
-				try {
-					suite = jsUnity.compile(arguments[i]);
-				} catch (e) {
-					this.error("Invalid test suite: " + e);
-					return false;
-				}
-
-				cnt = suite.tests.length;
-
-				$.Runner.startSuite(arguments[i], cnt, plural(cnt, "test"));
-
-				suiteNames.push(suite.suiteName);
-				results.total += cnt;
-
-				$.Runner.updateAmountOfTests(cnt);
-
-				// multi thread here?
-				for (j = 0; j < cnt; j++) {
-
-					setTimeout(function (x, y){
-						return(function(){
-							try {
-
-								var test = suite.tests[y];
-								
-								suite.setUp && suite.setUp();
-								test.fn.call(suite.scope);
-								suite.tearDown && suite.tearDown();
-
-								results.passed++;
-								
-								$.Runner.passTest(test);
-							
-							} catch (e) {
-
-								suite.tearDown && suite.tearDown();
-
-								$.Runner.failTest(test, e);
-							}
-							
-						});
-					}(i, j),0);
-					
-				}
-
-				//if(x >= args_len){
-								
-					//results.suiteName = suiteNames.join(",");
-					//results.failed = results.total - results.passed;
-					//results.duration = jsUnity.env.getDate() - start;
-
-					//$.Runner.updateResults(results);
-
-				//}
+				suite.setUp && suite.setUp();
 				
+				test.fn.call(suite.scope);
+
+				suite.tearDown && suite.tearDown();
+
+				_results.passed++;
+				
+				$.Runner.passTest(test);
+			
+			} catch (e) {
+
+				suite.tearDown && suite.tearDown();
+
+				$.Runner.failTest(test, e);
 			}
 
-			//return results;
+			// if still tests left, go to next test (if possible)
+			_synchronusTestIndex++;
+			
+			if(_synchronusTestIndex < suite.tests.length){
+				
+				setTimeout(function (){
+					$.Event.trigger($.Event.eventTypes.synchronusTest);
+				}, 0);
+				
+			}else{
+				// all done, go to next Test Suite
+				_synchronusSuiteIndex++;
+				_synchronusTestIndex = 0;
+				
+				setTimeout(function (){
+					$.Event.trigger($.Event.eventTypes.synchronusSuite);
+				}, 0);
+			}
+			
+		},
+
+		synchronusSuite: function (){
+
+			// "recusive" base case
+			if(_synchronusSuiteIndex < _suites.length){
+
+				var suite = _suites[_synchronusSuiteIndex],
+				suiteLength = suite.tests.length;
+
+				$.Runner.startSuite(suite, suiteLength, _plural(suiteLength, "test"));
+
+				_suiteNames.push(suite.suiteName);
+
+				_results.total += suiteLength;
+
+				$.Runner.updateAmountOfTests(suiteLength);
+				
+				setTimeout(function (){
+					$.Event.trigger($.Event.eventTypes.synchronusTest);
+				}, 0);
+				
+			}
+				
+			
+		},
+
+		run: function(){
+		
+			var i;
+
+			_synchronusTestIndex = 0;
+			_synchronusSuiteIndex = 0;
+			_results = new jsUnity.TestResults();
+			_suites = [];
+			_suiteNames = [];
+
+			for (i = 0; i < arguments.length; i++) {
+				// TODO: validate a Test Suite
+				try {
+					_suites.push(jsUnity.compile(arguments[i]));
+				}
+				catch (e) {
+					console.error("TestSuite exception :: " + e);
+					return false;
+				}
+			}
+
+			// initiate iterative scenario
+			setTimeout(function (){
+				$.Event.trigger($.Event.eventTypes.synchronusSuite);
+			}, 0);
+
 		}
 
 	};

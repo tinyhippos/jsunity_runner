@@ -14,7 +14,7 @@
 		
 		// Public Methods
         run: function (whatToRun, verbose){
-			var i;
+
 			try{
 
 				_markup = document.getElementById($.Constants.RUNNER_SELECTOR).innerHTML;
@@ -28,9 +28,7 @@
 					
 					case "all":
 
-						for (i = 0; i < _suites.length; i++){
-							jsUnity.run(_suites[i]);
-						}
+						jsUnity.run.apply(jsUnity, _suites);
 						
 						break;
 
