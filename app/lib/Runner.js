@@ -90,10 +90,11 @@
 		// methods called fby jsUnity itself
 
 		updateResults: function (results){
+			var total = results.passed + results.failed;
             $.Logger.log("<br /><br /><strong>RESULTS:</strong><br />");
             $.Logger.log(results.passed + " passed");
             $.Logger.log(results.failed + " failed");
-            $.Logger.log(results.duration + " elapsed");
+            $.Logger.log(results.duration + "ms elapsed for " + total + " tests");
 		},
 
 		updateProgress: function (){

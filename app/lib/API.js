@@ -4,7 +4,8 @@
 		_suites = [],
 		_suiteNames = [],
 		_synchronusSuiteIndex,
-		_synchronusTestIndex;
+		_synchronusTestIndex,
+		_startTime;
 
 	function _plural(cnt, unit) {
         return cnt + " " + unit + (cnt == 1 ? "" : "s");
@@ -12,11 +13,11 @@
 
 	function _finalizeResults(startTime){
 		
-		_results.suiteName = suiteNames.join(",");
-		_results.failed = results.total - results.passed;
-		_results.duration = jsUnity.env.getDate() - startTime;
+		_results.suiteName = _suiteNames.join(",");
+		_results.failed = _results.total - _results.passed;
+		_results.duration = new Date().getTime() - _startTime;
 
-		$.Runner.updateResults(results);
+		$.Runner.updateResults(_results);
 		
 	}
 
@@ -87,6 +88,8 @@
 					$.Event.trigger($.Event.eventTypes.synchronusTest);
 				}, 0);
 				
+			}else{
+				_finalizeResults(jsUnity.env.getDate());
 			}
 				
 			
@@ -112,7 +115,7 @@
 					return false;
 				}
 			}
-
+			_startTime = new Date().getTime();
 			// initiate iterative scenario
 			setTimeout(function (){
 				$.Event.trigger($.Event.eventTypes.synchronusSuite);
