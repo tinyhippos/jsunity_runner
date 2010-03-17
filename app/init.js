@@ -9,12 +9,12 @@ var jsUnityRunner = function (){
 window.addEventListener("load", function (){
 
 	// Register Events
-	jsUnityRunner.Event.on(jsUnityRunner.Event.eventTypes.synchronusSuite, function (){
-		jsUnityRunner.API.synchronusSuite();
+	jsUnityRunner.Event.on(jsUnityRunner.Event.eventTypes.synchronousSuite, function (){
+		jsUnityRunner.API.synchronousSuite();
 	});
 	
-	jsUnityRunner.Event.on(jsUnityRunner.Event.eventTypes.synchronusTest, function (){
-		jsUnityRunner.API.synchronusTest();
+	jsUnityRunner.Event.on(jsUnityRunner.Event.eventTypes.synchronousTest, function (){
+		jsUnityRunner.API.synchronousTest();
 	});
 
 	// Override API
@@ -24,10 +24,10 @@ window.addEventListener("load", function (){
 	
 	jsUnity.error = function (eStr){
 		jsUnityRunner.Logger.error(eStr);
-	}
+	};
 	
 	jsUnity.log = function (eStr){
 		jsUnityRunner.Logger.log(eStr);
-	}
+	};
 	
 });

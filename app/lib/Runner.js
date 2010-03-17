@@ -10,8 +10,6 @@
 
     return {
 
-		// Public Properties
-		
 		// Public Methods
         run: function (whatToRun, verbose){
 

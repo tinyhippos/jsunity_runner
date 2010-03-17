@@ -9,8 +9,8 @@
     return {
 		
         eventTypes: {
-            synchronusTest: "synchronusTest",
-            synchronusSuite: "synchronusSuite"
+            synchronousTest: "synchronousTest",
+            synchronousSuite: "synchronousSuite"
         },
 
         on: function (eventType, listener, scope) {

@@ -8,9 +8,11 @@
     <script type="text/javascript" src="app/thirdparty/jsunity-0.6.js"></script>
     
     <script type="text/javascript" src="app/init.js"></script>
+    <script type="text/javascript" src="app/lib/API.js"></script>
+    <script type="text/javascript" src="app/lib/Copy.js"></script>
     <script type="text/javascript" src="app/lib/Constants.js"></script>
     <script type="text/javascript" src="app/lib/Event.js"></script>
-    <script type="text/javascript" src="app/lib/API.js"></script>
+    <script type="text/javascript" src="app/lib/Console.js"></script>
     <script type="text/javascript" src="app/lib/Runner.js"></script>
     <script type="text/javascript" src="app/lib/Logger.js"></script>
     <script type="text/javascript" src="app/lib/Exception.js"></script>
@@ -36,18 +38,19 @@
         
         <div id="runner">
         
-            <form name="runner_form" onsubmit="return false;" method="get">
-            
+            <form name="runner_form" action="" onsubmit="return false;" method="get">
+
+                <label for="runner_selector">Tests</label>
                 <select id="runner_selector" name="runner_selector">
 					<option value="all">All</option>
                 </select>
                 
-                <button name="runner_submit" onclick="jsUnityRunner.Runner.run(runner_form.runner_selector.value, runner_form.runner_verbose.checked);">Run</button>
+                <button name="runner_submit" onclick="jsUnityRunner.Runner.run(document.runner_form.runner_selector.value, document.runner_form.runner_verbose.checked);">Run</button>
                 
                 <button onclick="location.reload(); return false;">Reload</button>
                 <button onclick="jsUnityRunner.Runner.clear(); return false;">Clear</button>
                 
-				<label>Verbose</label><input type="checkbox" name="runner_verbose" value="1" />
+				<label for="runner_verbose" >Verbose</label><input type="checkbox" id="runner_verbose" name="runner_verbose" value="1" />
                 
             </form>
             
