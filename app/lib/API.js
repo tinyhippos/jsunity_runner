@@ -5,7 +5,12 @@
 		_suiteNames = [],
 		_synchronousSuiteIndex,
 		_synchronousTestIndex,
-		_startTime;
+		_startTime,
+        _currentSuite,
+        _currentTest,
+        _shouldWait = false,
+        _waitInterval = 5000,
+        _assertWait = false;
 
     // copied from jsUnity since its a private method.
 	function _plural(cnt, unit) {
@@ -22,7 +27,33 @@
 		
 	}
 
+    function _processsor(event, stopTime){
+
+        if(_shouldWait && stopTime > (new Date()).getTime()){
+            setTimeout(function() {
+                _processsor(event, stopTime);
+            }, 100);
+        }
+        else{
+            if (_shouldWait) {
+                $.Runner.failTest(_currentTest, "Test failed due to timeout!");
+            }
+
+            _shouldWait = false;
+            setTimeout(function (){
+				$.Event.trigger(event);
+			}, 0);
+        }
+
+    }
+
+
 	return {
+
+        setWaitFlag: function(shouldWait, waitInterval){
+            _shouldWait = shouldWait;
+            _waitInterval = waitInterval || _waitInterval;
+        },
 
         // override of jsUnity.run
         run: function(){
@@ -53,50 +84,78 @@
 
 		},
 
-        // iterate through current test suite's tests
-		synchronousTest: function (){
+        synchronousSetUp: function(){
+            try{
+                _currentSuite.setUp && _currentSuite.setUp();
+                _processsor($.Event.eventTypes.synchronousTestRun, (new Date()).getTime() + _waitInterval);
+            }
+            catch(e){
+                $.Exception.handle(e);
+                $.Runner.failTest(_currentTest, "Failed at SetUp with error: " + e);
+                _processsor($.Event.eventTypes.synchronousTearDown, (new Date()).getTime());
+            }
+        },
 
-			var suite = _suites[_synchronousSuiteIndex],
-				test = _suites[_synchronousSuiteIndex].tests[_synchronousTestIndex];
+        synchronousTestRun: function(){
+            try{
+				_currentTest.fn.call(_currentSuite.scope);
 
-			try{
-				
-				suite.setUp && suite.setUp();
-				
-				test.fn.call(suite.scope);
+                if (!_assertWait) {
+                    _results.passed++;
 
-				suite.tearDown && suite.tearDown();
+                    $.Runner.passTest(_currentTest);
+                    _processsor($.Event.eventTypes.synchronousTearDown, (new Date()).getTime() + _waitInterval);
+                }
+            }
+            catch(e){
+                $.Exception.handle(e);
+                $.Runner.failTest(_currentTest, "Failed at TestRun with error: " + e);
+                _processsor($.Event.eventTypes.synchronousTearDown, (new Date()).getTime());
+            }
 
-				_results.passed++;
-				
-				$.Runner.passTest(test);
-			
-			} catch (e) {
+        },
 
-				suite.tearDown && suite.tearDown();
+        synchronousTearDown: function(){
+            try{
+                _currentSuite.tearDown && _currentSuite.tearDown();
+                _processsor($.Event.eventTypes.synchronousProceedToNext, (new Date()).getTime() + _waitInterval);
+            }
+            catch(e){
+                $.Exception.handle(e);
+                $.Runner.failTest(_currentTest, "Failed at TearDown with error: " + e);
+                _processsor($.Event.eventTypes.synchronousProceedToNext, (new Date()).getTime());
+            }
+        },
 
-				$.Runner.failTest(test, e);
-			}
 
-			// if still tests left, go to next test (if possible)
-			_synchronousTestIndex++;
-			
-			if(_synchronousTestIndex < suite.tests.length){
-				
+        synchronousProceedToNext: function() {
+ 			_synchronousTestIndex++;
+
+			if(_synchronousTestIndex < _currentSuite.tests.length){
+
 				setTimeout(function (){
 					$.Event.trigger($.Event.eventTypes.synchronousTest);
 				}, 0);
-				
+
 			}else{
 				// all done, go to next Test Suite
 				_synchronousSuiteIndex++;
 				_synchronousTestIndex = 0;
-				
+
 				setTimeout(function (){
 					$.Event.trigger($.Event.eventTypes.synchronousSuite);
 				}, 0);
 			}
-			
+        },
+
+        // iterate through current test suite's tests
+		synchronousTest: function (){
+            _currentSuite = _suites[_synchronousSuiteIndex],
+			_currentTest = _suites[_synchronousSuiteIndex].tests[_synchronousTestIndex];
+
+            setTimeout(function (){
+                $.Event.trigger($.Event.eventTypes.synchronousSetUp);
+            }, 0);
 		},
 
         // iterate over test suites to be run

@@ -17,6 +17,22 @@ window.addEventListener("load", function (){
 		jsUnityRunner.API.synchronousTest();
 	});
 
+	jsUnityRunner.Event.on(jsUnityRunner.Event.eventTypes.synchronousSetUp, function (){
+		jsUnityRunner.API.synchronousSetUp();
+	});
+
+    jsUnityRunner.Event.on(jsUnityRunner.Event.eventTypes.synchronousTestRun, function (){
+		jsUnityRunner.API.synchronousTestRun();
+	});
+
+    jsUnityRunner.Event.on(jsUnityRunner.Event.eventTypes.synchronousTearDown, function (){
+		jsUnityRunner.API.synchronousTearDown();
+	});
+
+    jsUnityRunner.Event.on(jsUnityRunner.Event.eventTypes.synchronousProceedToNext, function (){
+		jsUnityRunner.API.synchronousProceedToNext();
+	});
+
 	// Override API
 	jsUnity.run = jsUnityRunner.API.run;
 

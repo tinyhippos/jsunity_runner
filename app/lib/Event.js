@@ -10,7 +10,11 @@
 		
         eventTypes: {
             synchronousTest: "synchronousTest",
-            synchronousSuite: "synchronousSuite"
+            synchronousSuite: "synchronousSuite",
+            synchronousSetUp: "synchronousSetUp",
+            synchronousTearDown: "synchronousTearDown",
+            synchronousTestRun: "synchronousTestRun",
+            synchronousProceedToNext: "synchronousProceedToNext"
         },
 
         on: function (eventType, listener, scope) {
