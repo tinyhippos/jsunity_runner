@@ -8,6 +8,7 @@
 		_startTime,
         _currentSuite,
         _currentTest,
+        _currentTestFailed = false,
         _shouldWait = false,
         _waitInterval = 5000,
         _assertWait = false;
@@ -37,6 +38,8 @@
         else{
             if (_shouldWait) {
                 $.Runner.failTest(_currentTest, "Test failed due to timeout!");
+                // TODO: not really needed, need to do this better
+                _currentTestFailed = true;
             }
 
             _shouldWait = false;
@@ -46,7 +49,6 @@
         }
 
     }
-
 
 	return {
 
@@ -103,7 +105,9 @@
                 if (!_assertWait) {
                     _results.passed++;
 
-                    $.Runner.passTest(_currentTest);
+                    if(!_currentTestFailed){
+                        $.Runner.passTest(_currentTest);
+                    }
                     _processsor($.Event.eventTypes.synchronousTearDown, (new Date()).getTime() + _waitInterval);
                 }
             }
@@ -122,6 +126,8 @@
             }
             catch(e){
                 $.Exception.handle(e);
+                // TODO: not really needed, need to do this better
+                _currentTestFailed = true;
                 $.Runner.failTest(_currentTest, "Failed at TearDown with error: " + e);
                 _processsor($.Event.eventTypes.synchronousProceedToNext, (new Date()).getTime());
             }
@@ -150,6 +156,10 @@
 
         // iterate through current test suite's tests
 		synchronousTest: function (){
+
+            // TODO: a hack property (since logic currently can fail a test but have it logged as a pass directly after it (two logs))
+            _currentTestFailed = false;
+
             _currentSuite = _suites[_synchronousSuiteIndex],
 			_currentTest = _suites[_synchronousSuiteIndex].tests[_synchronousTestIndex];
 
