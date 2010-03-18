@@ -6,7 +6,7 @@ html, body{
   margin: 0;
   padding: 0;
   border: 0;
-  background: url() #FFFFFF !important;
+  background: #FFFFFF !important;
 }
 body{ font-size: 0.81em; }
 
@@ -82,9 +82,7 @@ h3{ font-size: 1.00em; }
 
 #info_logger{
     max-height: 250px;
-    height: 250px;
 }
-
 
 
 #progress{

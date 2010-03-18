@@ -9,42 +9,46 @@
             DomObjectNotFound: "DomObjectNotFound",
             MethodNotImplemented: "MethodNotImplemented",
             InvalidState: "InvalidState",
-            TestSuite: "TestSuiteException"
+            TestSuite: "TestSuiteException",
+            ConsoleNotFound: "ConsoleNotFound",
+            ConsoleMethodNotFound: "ConsoleMethodNotFound"
         },
 
-		handle: function(exception, reThrow){
-			
-			$.Utils.validateNumberOfArguments(1, 2, arguments.length);
+        handle: function(exception, reThrow){
+            $.Utils.validateNumberOfArguments(1, 2, arguments.length);
 
-			reThrow = reThrow || false;
+            reThrow = reThrow || false;
 
-			$.Utils.validateMultipleArgumentTypes(arguments, ['object', 'boolean']);
-			
-			var eMsg = exception.message || "exception caught!",
-				msg = eMsg+"\n\n"+(exception.stack || "*no stack provided*")+"\n\n",
-				smallMsg;
+            $.Utils.validateMultipleArgumentTypes(arguments, ['object', 'boolean']);
 
-			console.error(exception.name);
-            console.error(exception.message);
-            console.error(exception.stack);
+            var eMsg = exception.message || "exception caught!",
+                msg = eMsg+"\n\n"+(exception.stack || "*no stack provided*")+"\n\n";
 
-			if (reThrow){
-				throw exception;
-			}
+            if($.Console.isAvailable()){ $.Console.error(msg); }
 
-		},
+            if (reThrow){
+                throw exception;
+            }
 
-		raise: function(exceptionType, message){
-			
-			$.Utils.validateNumberOfArguments(1, 2, arguments.length);
+        },
 
-			message = message || "";
+        raise: function(exceptionType, message, customExceptionObject){
+            $.Utils.validateNumberOfArguments(1, 3, arguments.length);
 
-			$.Utils.validateMultipleArgumentTypes(arguments, ['string', 'string']);
+            var obj = customExceptionObject || {};
+            message = message || "";
 
-			throw {name: exceptionType, message: message};
-			
-		}
+            $.Utils.validateMultipleArgumentTypes([exceptionType, message, obj], ['string', 'string', 'object']);
+
+            obj.name = exceptionType;
+            obj.type = exceptionType;
+            obj.message = message;
+            
+            if($.Console.isAvailable()){ $.Console.error(obj); }
+
+            throw obj;
+        }
+
 
 	};
 

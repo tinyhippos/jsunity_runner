@@ -10,11 +10,9 @@
 
     return {
 
-		// Public Properties
-		
 		// Public Methods
         run: function (whatToRun, verbose){
-			var i;
+
 			try{
 
 				_markup = document.getElementById($.Constants.RUNNER_SELECTOR).innerHTML;
@@ -28,9 +26,7 @@
 					
 					case "all":
 
-						for (i = 0; i < _suites.length; i++){
-							jsUnity.run(_suites[i]);
-						}
+						jsUnity.run.apply(jsUnity, _suites);
 						
 						break;
 
@@ -92,10 +88,11 @@
 		// methods called fby jsUnity itself
 
 		updateResults: function (results){
+			var total = results.passed + results.failed;
             $.Logger.log("<br /><br /><strong>RESULTS:</strong><br />");
             $.Logger.log(results.passed + " passed");
             $.Logger.log(results.failed + " failed");
-            $.Logger.log(results.duration + " elapsed");
+            $.Logger.log(results.duration + "ms elapsed for " + total + " tests");
 		},
 
 		updateProgress: function (){

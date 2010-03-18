@@ -17,7 +17,7 @@
         },
 
         test_example_two: function(){
-            $j.assertions.assertNotNull(null);
+            $j.assertions.assertNull(null);
         }
         
     };
