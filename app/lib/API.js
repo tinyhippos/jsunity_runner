@@ -73,6 +73,8 @@
 			
 			} catch (e) {
 
+				$.Exception.handle(e);
+
 				suite.tearDown && suite.tearDown();
 
 				$.Runner.failTest(test, e);
