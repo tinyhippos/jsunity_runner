@@ -159,7 +159,7 @@
 
         asyncSetUp: function(){
             try{
-                if(_currentSuite.setUp()){
+                if(_currentSuite.setUp){
                     _currentSuite.setUp();
                 }
                 _processsor($.Event.eventTypes.asyncTestRun, (new Date()).getTime() + _waitInterval);
