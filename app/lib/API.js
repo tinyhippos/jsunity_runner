@@ -83,6 +83,26 @@
 
 
         // API methods
+        bindEvents: function(){
+        
+            var i,
+                events = [
+                  $.Event.eventTypes.asyncSuite,
+                  $.Event.eventTypes.asyncTest,
+                  $.Event.eventTypes.asyncSetUp,
+                  $.Event.eventTypes.asyncTestRun,
+                  $.Event.eventTypes.asyncTearDown,
+                  $.Event.eventTypes.asyncProceedToNext
+                ],
+                addEventCallback = function(event){
+                                return(function(){ $.API[event](); });
+                            };
+
+            for (i = 0; i < events.length; i++) {
+                $.Event.on(events[i], addEventCallback(events[i]));
+            }
+            
+        },
 
         // makes the runner stop at whatever point in a test (setUp, test or tearDown) and wait until shouldWait is toggled again
         setWaitFlag: function(shouldWait, waitInterval){
@@ -132,8 +152,6 @@
 				_suiteNames.push(suite.suiteName);
 
 				_results.total += suiteLength;
-
-				//$.Runner.updateAmountOfTests(suiteLength);
 
 				setTimeout(function (){
 					$.Event.trigger($.Event.eventTypes.asyncTest);
