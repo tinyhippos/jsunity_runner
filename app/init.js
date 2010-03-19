@@ -24,4 +24,4 @@ window.addEventListener("load", function (){
 		jsUnityRunner.Logger.log(eStr);
 	};
 	
-});
+}, false);

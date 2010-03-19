@@ -4,12 +4,15 @@
  */
 (jsUnityRunner.Console = function ($) {
 
-  var _buffer = "";
-  var _options = {
-		"append": "append"
-	};
 
-  return {
+	var _buffer = "",
+			_options = {
+			"append": "append"
+		},
+		// Opera fix for ReferenceError on console;
+		console = null;
+
+	return {
 
         isAvailable: function(){
             return console ? true : false;

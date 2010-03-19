@@ -3,7 +3,7 @@ jsUnityRunner : A lightweight and asynchronous Test Runner for jsUnity.
 Check out the Wiki for detailed info and releases.
   http://wiki.github.com/tinyhippos/jsUnityRunner/
 
-See the jsUnity Wiki as well.
+See the jsUnity Wiki as well for test helpers.
   jsUnity wiki: http://code.google.com/p/jsunity/w/list
 
 
@@ -11,7 +11,6 @@ See the jsUnity Wiki as well.
 ------ Notes
 
 Currently being developed and tested in Chrome.
-At this time using Rhino (or other untested engines) will most likely fail.
 But! Universal support (as per the jsUnity way) will be a definite goal.
 
 
@@ -25,7 +24,6 @@ Then just include it in index.html along with other tests. jsUnityRunner will pi
 	resetMarkup: resets the test markup before starting suite
 
 See the examples folder for creating test suites.
-
 
 
 ------ Attributions
