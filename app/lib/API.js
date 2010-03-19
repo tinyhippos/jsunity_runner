@@ -9,6 +9,7 @@
         _currentSuite,
         _currentTest,
         _shouldWait = false,
+        _defaultWaitInterval = 5000,
         _waitInterval = 5000,
         _assertWait = false;
 
@@ -27,17 +28,17 @@
 		
 	}
 
-    function _processsor(event, stopTime){
+    function _processsor(event, stopTime, errorMessage){
 
         if(_shouldWait && stopTime > (new Date()).getTime()){
             setTimeout(function() {
-                _processsor(event, stopTime);
+                _processsor(event, stopTime, errorMessage);
             }, 100);
         }
         else{
 
             if (_shouldWait) {
-                $.Runner.failTest(_currentTest, "Test failed due to timeout!");
+                $.Runner.failTest(_currentTest, (errorMessage || "") + "Test failed due to timeout!");
             }
 
             _shouldWait = false;
@@ -110,9 +111,16 @@
             _waitInterval = waitInterval || _waitInterval;
         },
 
-        // tell the async wait routine to also wait for possible assertions in a callback
-        setAssertWait: function(assertWait){
-            _assertWait = assertWait;
+        startAsyncTest: function(waitInterval) {
+            _shouldWait = true;
+            _waitInterval = waitInterval || _waitInterval;
+            _assertWait = true;
+        },
+
+        endAsyncTest: function() {
+            _shouldWait = false;
+            _waitInterval = _defaultWaitInterval;
+            _assertWait = false;
         },
 
         asyncProcessor: function(callback, scope){
@@ -132,7 +140,7 @@
                 $.Runner.failTest(_currentTest, "Failed at TestRun with error: " + e);
             }
 
-            _processsor($.Event.eventTypes.asyncTearDown, (new Date()).getTime());
+            _processsor($.Event.eventTypes.asyncTearDown, (new Date()).getTime(), "Failed at TestRun :: ");
 
         },
 
@@ -180,12 +188,12 @@
                 if(_currentSuite.setUp){
                     _currentSuite.setUp();
                 }
-                _processsor($.Event.eventTypes.asyncTestRun, (new Date()).getTime() + _waitInterval);
+                _processsor($.Event.eventTypes.asyncTestRun, (new Date()).getTime() + _waitInterval, "Failed at SetUp :: ");
             }
             catch(e){
                 $.Exception.handle(e);
                 $.Runner.failTest(_currentTest, "Failed at SetUp with error: " + e);
-                _processsor($.Event.eventTypes.asyncTearDown, (new Date()).getTime());
+                _processsor($.Event.eventTypes.asyncTearDown, (new Date()).getTime(), "Failed at SetUp :: ");
             }
         },
 
@@ -200,13 +208,13 @@
 
                     $.Runner.passTest(_currentTest);
 
-                    _processsor($.Event.eventTypes.asyncTearDown, (new Date()).getTime() + _waitInterval);
+                    _processsor($.Event.eventTypes.asyncTearDown, (new Date()).getTime() + _waitInterval, "Failed at TestRun :: ");
                 }
             }
             catch(e){
                 $.Exception.handle(e);
                 $.Runner.failTest(_currentTest, "Failed at TestRun with error: " + e);
-                _processsor($.Event.eventTypes.asyncTearDown, (new Date()).getTime());
+                _processsor($.Event.eventTypes.asyncTearDown, (new Date()).getTime(), "Failed at TestRun :: ");
             }
 
         },
@@ -216,12 +224,12 @@
                 if(_currentSuite.tearDown){
                     _currentSuite.tearDown();
                 }
-                _processsor($.Event.eventTypes.asyncProceedToNext, (new Date()).getTime() + _waitInterval);
+                _processsor($.Event.eventTypes.asyncProceedToNext, (new Date()).getTime() + _waitInterval, "Failed at TearDown :: ");
             }
             catch(e){
                 $.Exception.handle(e);
                 $.Runner.failTest(_currentTest, "Failed at TearDown with error: " + e);
-                _processsor($.Event.eventTypes.asyncProceedToNext, (new Date()).getTime());
+                _processsor($.Event.eventTypes.asyncProceedToNext, (new Date()).getTime(), "Failed at TearDown :: ");
             }
         },
 

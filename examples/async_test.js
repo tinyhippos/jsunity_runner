@@ -15,11 +15,9 @@
                 var configContentDiv;
 
                 if (xmlHttp.readyState === 4) {
-                    if (xmlHttp.status === 200){
                         if (xmlHttp.responseXML) {
                             _configXML = xmlHttp.responseXML;
                             $.API.setWaitFlag(false);
-                        }
                     }
                 }
             };
@@ -59,8 +57,7 @@
 
         test_async_test_waits_for_callback_to_complete_and_fails: function(){
 
-            $.API.setWaitFlag(true);
-            $.API.setAssertWait(true);
+            $.API.startAsyncTest();
 
             var xmlHttp = new XMLHttpRequest();
 
@@ -68,12 +65,10 @@
 
                 if (xmlHttp.readyState === 4) {
 
-                    $.API.setWaitFlag(false);
-                    $.API.setAssertWait(false);
+                    $.API.endAsyncTest();
                     $.API.asyncProcessor(function(){
                         $j.assertions.fail("FAILED PROPERLY!");
                     }, this);
-
                 }
             };
 
