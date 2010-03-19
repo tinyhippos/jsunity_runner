@@ -1,4 +1,4 @@
-jsUnityRunner : A lightweight Test Runner for jsUnity.
+jsUnityRunner : A lightweight and asynchronous Test Runner for jsUnity.
 
 Check out the Wiki for detailed info and releases.
   http://wiki.github.com/tinyhippos/jsUnityRunner/
@@ -21,33 +21,10 @@ But! Universal support (as per the jsUnity way) will be a definite goal.
 Place a test file anywhere you want (though tests/ is recommended).
 Then just include it in index.html along with other tests. jsUnityRunner will pick up on it.
 
-* Options
+* Optional Test Suite Properties
 	resetMarkup: resets the test markup before starting suite
 
-
-(jsUnityRunner.Tests.AnotherSuite = function($j, $){
-
-    return {
-        
-        suiteName: "-- Another Suite",
-
-        resetMarkup: true,
-
-        setUp: function(){ },
-        
-        tearDown: function(){ },
-
-        test_example: function(){
-            $j.assertions.assertNotNull(1);
-        },
-
-        test_example_two: function(){
-            $j.assertions.assertNotNull(null);
-        }
-        
-    };
-
-}(jsUnity, jsUnityRunner));
+See the examples folder for creating test suites.
 
 
 
