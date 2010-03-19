@@ -6,12 +6,33 @@
 		_markup,
 		_amountOfTests = 0,
 		_amountOfCompletedTests = 0,
+        _failedAmount = 0,
+        _passedAmount = 0,
 		_progress_failed = false;
+
+    function _countTests(suiteArray){
+        var test,
+            temp = 0,
+            i;
+
+        for(i = 0; i < suiteArray.length; i++){
+            for(test in suiteArray[i]){ if(suiteArray[i].hasOwnProperty(test)){
+                    if(test.match(/^test/)){
+                        temp++;
+                    }
+                }
+            }
+        }
+
+        return temp;
+    }
 
     return {
 
 		// Public Methods
         run: function (whatToRun, verbose){
+
+            var individualSuite;
 
 			try{
 
@@ -22,39 +43,35 @@
 
 				$.Logger.verbose = verbose || false;
 
-				switch (whatToRun) {
-					
-					case "all":
-
-						jsUnity.run.apply(jsUnity, _suites);
-						
-						break;
-
-					default:
-						
-						if(!_suites[parseInt(whatToRun, 10)]){
-							$.Exception.raise($.Exception.types.TestSuite, "Uknown test suite, can not run Test Suite(s).");
-						}else{
-							setTimeout(function(){
-								jsUnity.run(_suites[parseInt(whatToRun, 10)]);
-							},0);
-						}
-						
-				}
+                if(whatToRun === "all"){
+                    // TODO: figure out way to do this only once per load and not every run
+                    _amountOfTests = _countTests(_suites);
+                    jsUnity.run.apply(jsUnity, _suites);
+                }
+                else{
+                    individualSuite = _suites[parseInt(whatToRun, 10)];
+                    if(!individualSuite){
+                        $.Exception.raise($.Exception.types.TestSuite, "Uknown test suite, can not run Test Suite(s).");
+                    }else{
+                        _amountOfTests = _countTests( [individualSuite] );
+                        jsUnity.run(individualSuite);
+                    }
+                }
 
 			}
 			catch(e){
 				$.Logger.log(e);
 				$.Exception.handle(e);
 			}
-
+            
 			return false;
 
         },
 
 		loadTests: function (){
 			var suite,
-				count = 0;
+				count = 0,
+                test;
 
 			for (suite in $.Tests){ if($.Tests.hasOwnProperty(suite)){
 				_suites.push($.Tests[suite]);
@@ -78,6 +95,8 @@
 			document.getElementById($.Constants.PROGRESS_DIV).innerHTML = "";
 			_amountOfTests = 0;
 			_amountOfCompletedTests = 0;
+            _failedAmount = 0;
+            _passedAmount = 0;
 			$.Logger.clear();
 		},
 		
@@ -96,22 +115,25 @@
 		},
 
 		updateProgress: function (){
-			_amountOfCompletedTests++;
+			var str;
+
+            _amountOfCompletedTests++;
 			document.getElementById($.Constants.PROGRESS_DIV).innerHTML = _amountOfCompletedTests + " /" + _amountOfTests;
 			document.getElementById($.Constants.PROGRESS_SCROLL).style.width = ((_amountOfCompletedTests / _amountOfTests) * 100) + "%";
 			document.getElementById($.Constants.PROGRESS_SCROLL).style.backgroundColor = (_progress_failed ? "red" : "#40D940");
-		},
 
-		updateAmountOfTests: function (suiteLength){
-			_amountOfTests += suiteLength;
+            str = "passed=" + _passedAmount + " :: failed=" + _failedAmount;
+			document.getElementById($.Constants.RUNNER_RESULTS_DIV).innerHTML = str;
 		},
 
 		passTest: function (test){
+            _passedAmount++;
 			$.Logger.log('[PASSED]  ' + test.name, "green");
 			this.updateProgress();
 		},
 
 		failTest: function (test, error){
+            _failedAmount++;
 			_progress_failed = true;
 			$.Logger.log('[FAILED]  ' + test.name + ' :: ' + error, "red");
 			$.Logger.warn(test.name + " --> " + error);

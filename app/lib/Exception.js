@@ -14,22 +14,19 @@
             ConsoleMethodNotFound: "ConsoleMethodNotFound"
         },
 
-        handle: function(exception, reThrow){
-            $.Utils.validateNumberOfArguments(1, 2, arguments.length);
+        handle: function(exception, reThrow, logToConsole){
+            $.Utils.validateNumberOfArguments(1, 3, arguments.length);
 
             reThrow = reThrow || false;
-
-            $.Utils.validateMultipleArgumentTypes(arguments, ['object', 'boolean']);
 
             var eMsg = exception.message || "exception caught!",
                 msg = eMsg+"\n\n"+(exception.stack || "*no stack provided*")+"\n\n";
 
-            if($.Console.isAvailable()){ $.Console.error(msg); }
+            if($.Console.isAvailable() && logToConsole){ $.Console.error(msg); }
 
             if (reThrow){
                 throw exception;
             }
-
         },
 
         raise: function(exceptionType, message, customExceptionObject){

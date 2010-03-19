@@ -9,13 +9,7 @@ var jsUnityRunner = function (){
 window.addEventListener("load", function (){
 
 	// Register Events
-	jsUnityRunner.Event.on(jsUnityRunner.Event.eventTypes.synchronousSuite, function (){
-		jsUnityRunner.API.synchronousSuite();
-	});
-	
-	jsUnityRunner.Event.on(jsUnityRunner.Event.eventTypes.synchronousTest, function (){
-		jsUnityRunner.API.synchronousTest();
-	});
+	jsUnityRunner.API.bindEvents();
 
 	// Override API
 	jsUnity.run = jsUnityRunner.API.run;
