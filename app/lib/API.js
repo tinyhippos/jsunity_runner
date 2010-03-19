@@ -51,6 +51,7 @@
 	return {
 
         // override of jsUnity.run
+        // returns the total amount of tests
         run: function(){
 
 			var i;
@@ -71,6 +72,7 @@
 					return false;
 				}
 			}
+
 			_startTime = new Date().getTime();
 			// initiate iterative scenario
 			setTimeout(function (){
@@ -131,7 +133,7 @@
 
 				_results.total += suiteLength;
 
-				$.Runner.updateAmountOfTests(suiteLength);
+				//$.Runner.updateAmountOfTests(suiteLength);
 
 				setTimeout(function (){
 					$.Event.trigger($.Event.eventTypes.asyncTest);
