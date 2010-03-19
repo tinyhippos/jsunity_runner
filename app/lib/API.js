@@ -3,12 +3,11 @@
 	var _results = new jsUnity.TestResults(),
 		_suites = [],
 		_suiteNames = [],
-		_synchronousSuiteIndex,
-		_synchronousTestIndex,
+		_asyncSuiteIndex,
+		_asyncTestIndex,
 		_startTime,
         _currentSuite,
         _currentTest,
-        _currentTestFailed = false,
         _shouldWait = false,
         _waitInterval = 5000,
         _assertWait = false;
@@ -36,10 +35,9 @@
             }, 100);
         }
         else{
+
             if (_shouldWait) {
                 $.Runner.failTest(_currentTest, "Test failed due to timeout!");
-                // TODO: not really needed, need to do this better
-                _currentTestFailed = true;
             }
 
             _shouldWait = false;
@@ -52,18 +50,13 @@
 
 	return {
 
-        setWaitFlag: function(shouldWait, waitInterval){
-            _shouldWait = shouldWait;
-            _waitInterval = waitInterval || _waitInterval;
-        },
-
         // override of jsUnity.run
         run: function(){
 
 			var i;
 
-			_synchronousTestIndex = 0;
-			_synchronousSuiteIndex = 0;
+			_asyncTestIndex = 0;
+			_asyncSuiteIndex = 0;
 			_results = new jsUnity.TestResults();
 			_suites = [];
 			_suiteNames = [];
@@ -81,100 +74,55 @@
 			_startTime = new Date().getTime();
 			// initiate iterative scenario
 			setTimeout(function (){
-				$.Event.trigger($.Event.eventTypes.synchronousSuite);
+				$.Event.trigger($.Event.eventTypes.asyncSuite);
 			}, 0);
 
 		},
 
-        synchronousSetUp: function(){
-            try{
-                _currentSuite.setUp && _currentSuite.setUp();
-                _processsor($.Event.eventTypes.synchronousTestRun, (new Date()).getTime() + _waitInterval);
-            }
-            catch(e){
-                $.Exception.handle(e);
-                $.Runner.failTest(_currentTest, "Failed at SetUp with error: " + e);
-                _processsor($.Event.eventTypes.synchronousTearDown, (new Date()).getTime());
-            }
+
+        // API methods
+
+        // makes the runner stop at whatever point in a test (setUp, test or tearDown) and wait until shouldWait is toggled again
+        setWaitFlag: function(shouldWait, waitInterval){
+            _shouldWait = shouldWait;
+            _waitInterval = waitInterval || _waitInterval;
         },
 
-        synchronousTestRun: function(){
+        // tell the async wait routine to also wait for possible assertions in a callback
+        setAssertWait: function(assertWait){
+            _assertWait = assertWait;
+        },
+
+        asyncProcessor: function(callback, scope){
+            
+            $.Utils.validateArgumentType(callback, "function");
+
             try{
-				_currentTest.fn.call(_currentSuite.scope);
+                
+                callback.call(scope);
 
-                if (!_assertWait) {
-                    _results.passed++;
-
-                    if(!_currentTestFailed){
-                        $.Runner.passTest(_currentTest);
-                    }
-                    _processsor($.Event.eventTypes.synchronousTearDown, (new Date()).getTime() + _waitInterval);
-                }
+                $.Runner.passTest(_currentTest);
             }
             catch(e){
+
                 $.Exception.handle(e);
+
                 $.Runner.failTest(_currentTest, "Failed at TestRun with error: " + e);
-                _processsor($.Event.eventTypes.synchronousTearDown, (new Date()).getTime());
             }
+
+            _processsor($.Event.eventTypes.asyncTearDown, (new Date()).getTime());
 
         },
 
-        synchronousTearDown: function(){
-            try{
-                _currentSuite.tearDown && _currentSuite.tearDown();
-                _processsor($.Event.eventTypes.synchronousProceedToNext, (new Date()).getTime() + _waitInterval);
-            }
-            catch(e){
-                $.Exception.handle(e);
-                // TODO: not really needed, need to do this better
-                _currentTestFailed = true;
-                $.Runner.failTest(_currentTest, "Failed at TearDown with error: " + e);
-                _processsor($.Event.eventTypes.synchronousProceedToNext, (new Date()).getTime());
-            }
-        },
 
-
-        synchronousProceedToNext: function() {
- 			_synchronousTestIndex++;
-
-			if(_synchronousTestIndex < _currentSuite.tests.length){
-
-				setTimeout(function (){
-					$.Event.trigger($.Event.eventTypes.synchronousTest);
-				}, 0);
-
-			}else{
-				// all done, go to next Test Suite
-				_synchronousSuiteIndex++;
-				_synchronousTestIndex = 0;
-
-				setTimeout(function (){
-					$.Event.trigger($.Event.eventTypes.synchronousSuite);
-				}, 0);
-			}
-        },
-
-        // iterate through current test suite's tests
-		synchronousTest: function (){
-
-            // TODO: a hack property (since logic currently can fail a test but have it logged as a pass directly after it (two logs))
-            _currentTestFailed = false;
-
-            _currentSuite = _suites[_synchronousSuiteIndex],
-			_currentTest = _suites[_synchronousSuiteIndex].tests[_synchronousTestIndex];
-
-            setTimeout(function (){
-                $.Event.trigger($.Event.eventTypes.synchronousSetUp);
-            }, 0);
-		},
-
+        // async methods
         // iterate over test suites to be run
-		synchronousSuite: function (){
+		asyncSuite: function (){
 
 			// "recursive" base case
-			if(_synchronousSuiteIndex < _suites.length){
+			if(_asyncSuiteIndex < _suites.length){
 
-				var suite = _suites[_synchronousSuiteIndex],
+				var suite = _suites[_asyncSuiteIndex],
 				suiteLength = suite.tests.length;
 
 				$.Runner.startSuite(suite, suiteLength, _plural(suiteLength, "test"));
@@ -184,17 +132,95 @@
 				_results.total += suiteLength;
 
 				$.Runner.updateAmountOfTests(suiteLength);
-				
+
 				setTimeout(function (){
-					$.Event.trigger($.Event.eventTypes.synchronousTest);
+					$.Event.trigger($.Event.eventTypes.asyncTest);
 				}, 0);
-				
+
 			}else{
 				_finalizeResults();
 			}
-				
-			
+
+
+        },
+
+        // iterate through current test suite's tests
+		asyncTest: function (){
+
+            _currentSuite = _suites[_asyncSuiteIndex],
+			_currentTest = _suites[_asyncSuiteIndex].tests[_asyncTestIndex];
+
+            setTimeout(function (){
+                $.Event.trigger($.Event.eventTypes.asyncSetUp);
+            }, 0);
+		},
+
+        asyncSetUp: function(){
+            try{
+                _currentSuite.setUp && _currentSuite.setUp();
+                _processsor($.Event.eventTypes.asyncTestRun, (new Date()).getTime() + _waitInterval);
+            }
+            catch(e){
+                $.Exception.handle(e);
+                $.Runner.failTest(_currentTest, "Failed at SetUp with error: " + e);
+                _processsor($.Event.eventTypes.asyncTearDown, (new Date()).getTime());
+            }
+        },
+
+        asyncTestRun: function(){
+
+            try{
+				_currentTest.fn.call(_currentSuite.scope);
+
+                // if im waiting then I should not go ahead to next step (wait for user callback to notify me)
+                if (!_assertWait) {
+                    _results.passed++;
+
+                    $.Runner.passTest(_currentTest);
+
+                    _processsor($.Event.eventTypes.asyncTearDown, (new Date()).getTime() + _waitInterval);
+                }
+            }
+            catch(e){
+                $.Exception.handle(e);
+                $.Runner.failTest(_currentTest, "Failed at TestRun with error: " + e);
+                _processsor($.Event.eventTypes.asyncTearDown, (new Date()).getTime());
+            }
+
+        },
+
+        asyncTearDown: function(){
+            try{
+                _currentSuite.tearDown && _currentSuite.tearDown();
+                _processsor($.Event.eventTypes.asyncProceedToNext, (new Date()).getTime() + _waitInterval);
+            }
+            catch(e){
+                $.Exception.handle(e);
+                $.Runner.failTest(_currentTest, "Failed at TearDown with error: " + e);
+                _processsor($.Event.eventTypes.asyncProceedToNext, (new Date()).getTime());
+            }
+        },
+
+        asyncProceedToNext: function() {
+ 			_asyncTestIndex++;
+
+			if(_asyncTestIndex < _currentSuite.tests.length){
+
+				setTimeout(function (){
+					$.Event.trigger($.Event.eventTypes.asyncTest);
+				}, 0);
+
+			}else{
+				// all done, go to next Test Suite
+				_asyncSuiteIndex++;
+				_asyncTestIndex = 0;
+
+				setTimeout(function (){
+					$.Event.trigger($.Event.eventTypes.asyncSuite);
+				}, 0);
+			}
         }
+
 
 	};
 

@@ -1,6 +1,7 @@
 /*
  * Class: Event
  * Purpose: publish-subscribe Event class for DOM based and non-DOM based event facilitation
+ * kudos: http://blog.jcoglan.com/2010/02/21/events-theyre-not-just-for-the-dom-you-know/
  */
 (jsUnityRunner.Event = function ($){
 
@@ -9,12 +10,12 @@
     return {
 		
         eventTypes: {
-            synchronousTest: "synchronousTest",
-            synchronousSuite: "synchronousSuite",
-            synchronousSetUp: "synchronousSetUp",
-            synchronousTearDown: "synchronousTearDown",
-            synchronousTestRun: "synchronousTestRun",
-            synchronousProceedToNext: "synchronousProceedToNext"
+            asyncTest: "asyncTest",
+            asyncSuite: "asyncSuite",
+            asyncSetUp: "asyncSetUp",
+            asyncTearDown: "asyncTearDown",
+            asyncTestRun: "asyncTestRun",
+            asyncProceedToNext: "asyncProceedToNext"
         },
 
         on: function (eventType, listener, scope) {
@@ -55,7 +56,7 @@
         getEventSubscribers: function (eventType) {
 			$.Utils.validateNumberOfArguments(1, 1, arguments.length);
 			$.Utils.validateArgumentType(eventType, "string");
-            return _listeners[eventType] || [];
+            return $.Copy(_listeners[eventType]) || [];
         }
 
     };

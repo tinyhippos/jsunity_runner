@@ -9,28 +9,28 @@ var jsUnityRunner = function (){
 window.addEventListener("load", function (){
 
 	// Register Events
-	jsUnityRunner.Event.on(jsUnityRunner.Event.eventTypes.synchronousSuite, function (){
-		jsUnityRunner.API.synchronousSuite();
+	jsUnityRunner.Event.on(jsUnityRunner.Event.eventTypes.asyncSuite, function (){
+		jsUnityRunner.API.asyncSuite();
 	});
 	
-	jsUnityRunner.Event.on(jsUnityRunner.Event.eventTypes.synchronousTest, function (){
-		jsUnityRunner.API.synchronousTest();
+	jsUnityRunner.Event.on(jsUnityRunner.Event.eventTypes.asyncTest, function (){
+		jsUnityRunner.API.asyncTest();
 	});
 
-	jsUnityRunner.Event.on(jsUnityRunner.Event.eventTypes.synchronousSetUp, function (){
-		jsUnityRunner.API.synchronousSetUp();
+	jsUnityRunner.Event.on(jsUnityRunner.Event.eventTypes.asyncSetUp, function (){
+		jsUnityRunner.API.asyncSetUp();
 	});
 
-    jsUnityRunner.Event.on(jsUnityRunner.Event.eventTypes.synchronousTestRun, function (){
-		jsUnityRunner.API.synchronousTestRun();
+    jsUnityRunner.Event.on(jsUnityRunner.Event.eventTypes.asyncTestRun, function (){
+		jsUnityRunner.API.asyncTestRun();
 	});
 
-    jsUnityRunner.Event.on(jsUnityRunner.Event.eventTypes.synchronousTearDown, function (){
-		jsUnityRunner.API.synchronousTearDown();
+    jsUnityRunner.Event.on(jsUnityRunner.Event.eventTypes.asyncTearDown, function (){
+		jsUnityRunner.API.asyncTearDown();
 	});
 
-    jsUnityRunner.Event.on(jsUnityRunner.Event.eventTypes.synchronousProceedToNext, function (){
-		jsUnityRunner.API.synchronousProceedToNext();
+    jsUnityRunner.Event.on(jsUnityRunner.Event.eventTypes.asyncProceedToNext, function (){
+		jsUnityRunner.API.asyncProceedToNext();
 	});
 
 	// Override API
