@@ -6,6 +6,8 @@
 		_markup,
 		_amountOfTests = 0,
 		_amountOfCompletedTests = 0,
+        _failedAmount = 0,
+        _passedAmount = 0,
 		_progress_failed = false;
 
     function _countTests(suiteArray){
@@ -93,6 +95,8 @@
 			document.getElementById($.Constants.PROGRESS_DIV).innerHTML = "";
 			_amountOfTests = 0;
 			_amountOfCompletedTests = 0;
+            _failedAmount = 0;
+            _passedAmount = 0;
 			$.Logger.clear();
 		},
 		
@@ -111,18 +115,25 @@
 		},
 
 		updateProgress: function (){
-			_amountOfCompletedTests++;
+			var str;
+
+            _amountOfCompletedTests++;
 			document.getElementById($.Constants.PROGRESS_DIV).innerHTML = _amountOfCompletedTests + " /" + _amountOfTests;
 			document.getElementById($.Constants.PROGRESS_SCROLL).style.width = ((_amountOfCompletedTests / _amountOfTests) * 100) + "%";
 			document.getElementById($.Constants.PROGRESS_SCROLL).style.backgroundColor = (_progress_failed ? "red" : "#40D940");
+
+            str = "passed=" + _passedAmount + " :: failed=" + _failedAmount;
+			document.getElementById($.Constants.RUNNER_RESULTS_DIV).innerHTML = str;
 		},
 
 		passTest: function (test){
+            _passedAmount++;
 			$.Logger.log('[PASSED]  ' + test.name, "green");
 			this.updateProgress();
 		},
 
 		failTest: function (test, error){
+            _failedAmount++;
 			_progress_failed = true;
 			$.Logger.log('[FAILED]  ' + test.name + ' :: ' + error, "red");
 			$.Logger.warn(test.name + " --> " + error);

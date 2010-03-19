@@ -119,3 +119,13 @@ h3{ font-size: 1.00em; }
     -moz-border-radius: 10px;
 	border-radius: 10px;
 }
+
+#runner_results{
+    float: right;
+    margin: 0.3em;
+    padding: 0.25em 0.5em;
+    background: #F0F0F0;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+	border-radius: 10px;
+}
