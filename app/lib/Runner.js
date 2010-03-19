@@ -22,25 +22,18 @@
 
 				$.Logger.verbose = verbose || false;
 
-				switch (whatToRun) {
-					
-					case "all":
-
-						jsUnity.run.apply(jsUnity, _suites);
-						
-						break;
-
-					default:
-						
-						if(!_suites[parseInt(whatToRun, 10)]){
-							$.Exception.raise($.Exception.types.TestSuite, "Uknown test suite, can not run Test Suite(s).");
-						}else{
-							setTimeout(function(){
-								jsUnity.run(_suites[parseInt(whatToRun, 10)]);
-							},0);
-						}
-						
-				}
+                if(whatToRun === "all"){
+                    jsUnity.run.apply(jsUnity, _suites);
+                }
+                else{
+                    if(!_suites[parseInt(whatToRun, 10)]){
+                        $.Exception.raise($.Exception.types.TestSuite, "Uknown test suite, can not run Test Suite(s).");
+                    }else{
+                        setTimeout(function(){
+                            jsUnity.run(_suites[parseInt(whatToRun, 10)]);
+                        },0);
+                    }
+                }
 
 			}
 			catch(e){

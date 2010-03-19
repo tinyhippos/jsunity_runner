@@ -147,7 +147,7 @@
         // iterate through current test suite's tests
 		asyncTest: function (){
 
-            _currentSuite = _suites[_asyncSuiteIndex],
+            _currentSuite = _suites[_asyncSuiteIndex];
 			_currentTest = _suites[_asyncSuiteIndex].tests[_asyncTestIndex];
 
             setTimeout(function (){
@@ -157,7 +157,9 @@
 
         asyncSetUp: function(){
             try{
-                _currentSuite.setUp && _currentSuite.setUp();
+                if(_currentSuite.setUp()){
+                    _currentSuite.setUp();
+                }
                 _processsor($.Event.eventTypes.asyncTestRun, (new Date()).getTime() + _waitInterval);
             }
             catch(e){
@@ -191,7 +193,9 @@
 
         asyncTearDown: function(){
             try{
-                _currentSuite.tearDown && _currentSuite.tearDown();
+                if(_currentSuite.tearDown){
+                    _currentSuite.tearDown();
+                }
                 _processsor($.Event.eventTypes.asyncProceedToNext, (new Date()).getTime() + _waitInterval);
             }
             catch(e){
@@ -202,7 +206,7 @@
         },
 
         asyncProceedToNext: function() {
- 			_asyncTestIndex++;
+            _asyncTestIndex++;
 
 			if(_asyncTestIndex < _currentSuite.tests.length){
 

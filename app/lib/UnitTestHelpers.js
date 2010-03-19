@@ -23,9 +23,9 @@
             throw {name: "Argument", message: "_catchesException ==> Need at one argument that is a (function, namespace, *args)." };
         }
 
-        var caughtException = false;
-        var func = args[0], namespace = args[1];
-        var funcArgs = _tackOnArguments(args, 2, args.length);
+        var caughtException = false,
+            func = args[0], namespace = args[1],
+            funcArgs = _tackOnArguments(args, 2, args.length);
         
         try{ func.apply(namespace, funcArgs); }
         catch (e){
@@ -52,12 +52,16 @@
             jsUnity.assertions.assertTrue(obj);
 
             for (var method in methods){
-                jsUnity.assertions.assertTypeOf("function", obj[method], "method was expected on object but not found: "+method);
+                if(methods.hasOwnProperty(method)){
+                    jsUnity.assertions.assertTypeOf("function", obj[method], "method was expected on object but not found: "+method);
+                }
             }
 
             for (var item in obj){
-                if(obj.hasOwnProperty(item) && typeof obj[item] === 'function'){
-                    jsUnity.assertions.assertNotUndefined("Public method found but not expected:"+item, methods[item])
+                if(obj.hasOwnProperty(item)){
+                    if(obj.hasOwnProperty(item) && typeof obj[item] === 'function'){
+                        jsUnity.assertions.assertNotUndefined("Public method found but not expected:"+item, methods[item]);
+                    }
                 }
             }
             
@@ -79,10 +83,10 @@
 
         // note: uses Widget.Exception class's type property
         catchesSpecificException: function(){
-            var eType = arguments[0];
-            arguments = _tackOnArguments(arguments, 1, arguments.length);
-
-            return _catchesException(arguments, function (e){
+            var eType = arguments[0],
+                args = _tackOnArguments(arguments, 1, arguments.length);
+            
+            return _catchesException(args, function (e){
                     return e.type === eType;
                 });
         }
