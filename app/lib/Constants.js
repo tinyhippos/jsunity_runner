@@ -8,9 +8,14 @@
 	"INFO_LOGGER_DIV": "info_logger",
     "RUNNER_RESULTS_DIV": "runner_results",
     "RUNNER_STATUS_DIV": "runner_timer",
+    "RUNNER_VERBOSE_CHECKBOX": "runner_verbose",
 
     "common": {
-		"prefix": "zencard-"
-	}
+		"prefix": "JSUR_"
+	},
+
+    "storage": {
+        "ApplicationState": "application_state"
+    }
 
 });

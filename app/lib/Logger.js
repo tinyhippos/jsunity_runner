@@ -22,7 +22,7 @@
 
 		error: function (msg){
 			this.log(msg, "red");
-			if($.Console.isAvailable()){ console.error(msg); }
+			if($.Console.isAvailable()){ $.Console.error(msg); }
 		},
 
         clear: function (){

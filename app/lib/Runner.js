@@ -2,7 +2,7 @@
 
 (jsUnityRunner.Runner = function ($){
 
-	var _suites = [],
+	var _suites = $.Tests,
 		_markup,
         _results = {
             "totalTests": 0,
@@ -15,17 +15,16 @@
 
     function _countTests(suiteArray){
         var test,
-            temp = 0,
-            i;
+            suite,
+            temp = 0;
 
-        for(i = 0; i < suiteArray.length; i++){
-            for(test in suiteArray[i]){ if(suiteArray[i].hasOwnProperty(test)){
-                    if(test.match(/^test/)){
-                        temp++;
-                    }
+        for(suite in suiteArray){ if(suiteArray.hasOwnProperty(suite)){
+            for(test in suiteArray[suite]){ if(suiteArray[suite].hasOwnProperty(test)){
+                if(test.match(/^test/)){
+                    temp++;
                 }
-            }
-        }
+            }}
+        }}
 
         return temp;
     }
@@ -34,8 +33,6 @@
 
 		// Public Methods
         run: function (whatToRun, verbose){
-
-            var individualSuite;
 
 			try{
 
@@ -53,13 +50,12 @@
                     jsUnity.run.apply(jsUnity, _suites);
                 }
                 else{
-                    individualSuite = _suites[parseInt(whatToRun, 10)];
-                    if(!individualSuite){
+                    if(!_suites[whatToRun]){
                         $.Exception.raise($.Exception.types.TestSuite, "Uknown test suite, can not run Test Suite(s).");
                     }else{
-                        _results.totalTests = _countTests( [individualSuite] );
+                        _results.totalTests = _countTests( [_suites[whatToRun]] );
                         _startTime = new Date().getTime();
-                        jsUnity.run(individualSuite);
+                        jsUnity.run(_suites[whatToRun]);
                     }
                 }
 
@@ -73,6 +69,30 @@
 
         },
 
+        registerEvents: function(){
+
+//            $.Event.on($.Event.eventTypes.storageUpdated, function(key, prefix, obj, removed){
+//                $.Console.log(key + " AND prefix==" + prefix + " AND removed=" + removed);
+//                $.Console.log(obj);
+//            });
+
+            $.Event.on($.Event.eventTypes.ApplicationState, function(){
+                
+                var runnerVerbose = $.Utils.id($.Constants.RUNNER_VERBOSE_CHECKBOX),
+                    selectedTest = $.Utils.id($.Constants.RUNNER_SELECTOR);
+
+                if(!runnerVerbose){ $.Exception.raise($.Exception.type.DomObjectNotFound, $.Constants.RUNNER_VERBOSE_CHECKBOX + " was not found."); }
+                if(!selectedTest){ $.Exception.raise($.Exception.type.DomObjectNotFound, $.Constants.RUNNER_SELECTOR + " was not found."); }
+
+                $.Persistence.saveObject($.Constants.storage.ApplicationState, {
+                    "verbose": runnerVerbose.checked,
+                    "selectedTest": selectedTest.value
+                });
+
+            });
+
+        },
+
         complete: function(){
             var endTime = (new Date().getTime() - _startTime);
             $.Utils.id($.Constants.RUNNER_STATUS_DIV).innerHTML = endTime + " ms elapsed";
@@ -80,24 +100,36 @@
         },
 
 		loadTestSuites: function (){
-			var suite,
-				count = 0,
-                test;
 
-			for (suite in $.Tests){ if($.Tests.hasOwnProperty(suite)){
-				_suites.push($.Tests[suite]);
-				this.loadOption($.Tests[suite], count);
-				count++;
-			}}
+            var suite,
+                count = 0,
+                test,
+                appState = $.Persistence.retrieveObject($.Constants.storage.ApplicationState) || null;
+
+            // TODO: put into a UI class
+            if(appState && appState.verbose){
+                $.Utils.id($.Constants.RUNNER_VERBOSE_CHECKBOX).checked = true;
+            }
+
+            $.Console.log("selected is! ==> " + (appState && appState.selectedTest));
+            $.Console.log("verbose is! ==> " + (appState && appState.verbose));
+
+            for (suite in $.Tests){ if($.Tests.hasOwnProperty(suite)){
+                this.loadOption($.Tests[suite], suite, (appState && appState.selectedTest));
+                count++;
+            }}
 
 		},
 
-		loadOption: function (suite, count){
-
-			$.Utils.id($.Constants.RUNNER_SELECTOR).appendChild($.Utils.createElement("option", {
-					"value": count,
+		loadOption: function (suite, suitePropertyName, selectedPropertyName){
+            var el = $.Utils.createElement("option", {
+					"value": suitePropertyName,
 					"innerHTML":  suite.suiteName || "Uknown Test Suite"
-				}));
+				});
+            if(suitePropertyName === selectedPropertyName){
+                el.setAttribute("selected", "selected");
+            }
+			$.Utils.id($.Constants.RUNNER_SELECTOR).appendChild(el);
 
 		},
 

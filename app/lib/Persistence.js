@@ -1,5 +1,7 @@
 (jsUnityRunner.Persistence = function($){
 
+    var localStorage = (window && window.localStorage) || null;
+
 	function _validateAndSetPrefix(prefix) {
 		if (prefix) {
 			$.Utils.validateArgumentType(prefix, "string");
@@ -18,19 +20,21 @@
 
             localStorage[_validateAndSetPrefix(prefix)+key] = value;
 
-            $.Event.trigger($.Event.eventTypes.storageUpdatedEvent);
+            $.Event.trigger($.Event.eventTypes.storageUpdated, [key, prefix, value, false]);
 		},
 
 		saveObject: function (key, obj, prefix){
 			$.Utils.validateNumberOfArguments(2, 3, arguments.length);
 			$.Utils.validateArgumentType(key, "string", null, "Persistence.saveObject");
+            
             if (obj) {
                 $.Utils.validateArgumentType(obj, "object");
             }
 
-            localStorage[_validateAndSetPrefix(prefix)+key] = JSON.stringify(obj);
+            prefix = _validateAndSetPrefix(prefix);
+            localStorage[prefix+key] = JSON.stringify(obj);
 
-            $.Event.trigger($.Event.eventTypes.storageUpdatedEvent);
+            $.Event.trigger($.Event.eventTypes.storageUpdated, [key, prefix, obj, false]);
 		},
 
 		retrieve: function (key, prefix){
@@ -52,24 +56,32 @@
             $.Utils.validateNumberOfArguments(1, 2, arguments.length);
             $.Utils.validateArgumentType(key, "string", null, "Persistence.remove");
 
-            $.Event.trigger($.Event.eventTypes.storageUpdatedEvent);
+            prefix = _validateAndSetPrefix(prefix);
 
-            return localStorage.removeItem(_validateAndSetPrefix(prefix)+key);
+            var item = localStorage[prefix+key];
+
+            localStorage.removeItem(prefix+key);
+
+            $.Event.trigger($.Event.eventTypes.storageUpdated, [key, prefix, item, true]);
 		},
 
         removeAll: function (prefix) {
             $.Utils.validateNumberOfArguments(0, 1, arguments.length);
 
+            var key,
+                temp;
+
             prefix = _validateAndSetPrefix(prefix);
 
             // loop over keys and regex out the ones that have our prefix and delete them
-            for (var key in localStorage) {
+            for (key in localStorage) {
                 if (key.match("^"+prefix)) {
-                        localStorage.removeItem(key);
+                    temp = localStorage[key];
+                    localStorage.removeItem(key);
+                    $.Event.trigger($.Event.eventTypes.storageUpdated, [key, prefix, temp, true]);
                 }
             }
 
-            $.Event.trigger($.Event.eventTypes.storageUpdatedEvent);
         }
 	};
 }(jsUnityRunner));

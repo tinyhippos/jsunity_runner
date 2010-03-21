@@ -60,7 +60,6 @@
 	return {
 
         // override of jsUnity.run
-        // returns the total amount of tests
         run: function(){
 
 			var i;
@@ -110,7 +109,7 @@
             
         },
 
-        // makes the runner stop at whatever point in a test (setUp, test or tearDown) and wait until shouldWait is toggled again
+        // makes the runner stop at whatever point in a test (setUp, test or tearDown) and loop in _processor
         startAsyncTest: function(waitInterval) {
             _asyncProcessShouldWait = true;
             _waitInterval = waitInterval || _waitInterval;
@@ -134,8 +133,7 @@
 			// "recursive" base case
 			if(_asyncSuiteIndex < _suites.length){
 
-				var suite = _suites[_asyncSuiteIndex],
-				suiteLength = suite.tests.length;
+				var suite = _suites[_asyncSuiteIndex];
 
 				$.Runner.notifySuiteStart(suite);
 
@@ -144,12 +142,12 @@
 				}, 0);
 
 			}
-            else{  $.Runner.complete(); }
-
+            else{
+                $.Runner.complete();
+            }
 
         },
 
-        // iterate through current test suite's tests
 		asyncTest: function (){
 
             _currentSuite = _suites[_asyncSuiteIndex];
