@@ -14,19 +14,23 @@
             ConsoleMethodNotFound: "ConsoleMethodNotFound"
         },
 
-        handle: function(exception, reThrow, logToConsole){
-            $.Utils.validateNumberOfArguments(1, 3, arguments.length);
+        handle: function(exception, reThrow){
 
-            reThrow = reThrow || false;
+                $.Utils.validateNumberOfArguments(1, 2, arguments.length);
 
-            var eMsg = exception.message || "exception caught!",
-                msg = eMsg+"\n\n"+(exception.stack || "*no stack provided*")+"\n\n";
+                reThrow = reThrow || false;
 
-            if($.Console.isAvailable() && logToConsole){ $.Console.error(msg); }
+                var eMsg = (exception.name || "no name provided") + "\n\n" +  (exception.message || "exception caught!"),
+                    msg = eMsg+"\n\n"+(exception.stack || "*no stack provided*")+"\n\n";
 
-            if (reThrow){
-                throw exception;
-            }
+                if($.Console.isAvailable()){
+                    $.Console.error(msg);
+                }
+
+                if (reThrow){
+                    throw exception;
+                }
+            
         },
 
         raise: function(exceptionType, message, customExceptionObject){

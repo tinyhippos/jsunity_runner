@@ -71,17 +71,17 @@ h3{ font-size: 1.00em; }
 #test_logger, #info_logger{
     padding: 0.75em;
     overflow: auto;
-    border: 1px solid #AAAAAA;
+    border: 1px solid #CCCCCC;
     margin: 1em auto;
+    line-height: 20px;
 }
 
 #test_logger{
-    max-height: 350px;
-    height: 350px;
+    height: 400px;
 }
 
 #info_logger{
-    max-height: 250px;
+    height: 200px;
 }
 
 
@@ -124,8 +124,10 @@ h3{ font-size: 1.00em; }
     float: right;
     margin: 0.3em;
     padding: 0.25em 0.5em;
-    background: #F0F0F0;
-    -webkit-border-radius: 10px;
-    -moz-border-radius: 10px;
-	border-radius: 10px;
+}
+
+#runner_timer{
+    float: right;
+    margin: 0.3em;
+    padding: 0.25em 0.5em;
 }

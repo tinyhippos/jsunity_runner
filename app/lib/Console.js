@@ -9,8 +9,8 @@
 			_options = {
 			"append": "append"
 		},
-		// Opera fix for ReferenceError on console;
-		console = null;
+		// fix ReferenceError on console;
+		console = (window && window.console) || null;
 
 	return {
 
