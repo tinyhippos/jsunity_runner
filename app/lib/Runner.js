@@ -29,6 +29,17 @@
         return temp;
     }
 
+    function _suitesToArray(){
+        var suite,
+            temp = [];
+
+        for(suite in _suites){ if(_suites.hasOwnProperty(suite)){
+            temp.push(_suites[suite]);
+        }}
+
+        return temp;
+    }
+
     return {
 
 		// Public Methods
@@ -47,7 +58,7 @@
                     // TODO: figure out way to do this only once per load and not every run
                     _results.totalTests = _countTests(_suites);
                     _startTime = new Date().getTime();
-                    jsUnity.run.apply(jsUnity, _suites);
+                    jsUnity.run.apply(jsUnity, _suitesToArray());
                 }
                 else{
                     if(!_suites[whatToRun]){
