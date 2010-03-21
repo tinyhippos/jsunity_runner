@@ -33,6 +33,10 @@
 
 			return d;
 		},
+
+        id: function(id){
+            return document.getElementById(id);
+        },
         
         validateNumberOfArguments: function (lowerBound, upperBound, numberOfArguments){
 

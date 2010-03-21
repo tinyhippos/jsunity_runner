@@ -9,12 +9,12 @@ var jsUnityRunner = function (){
 window.addEventListener("load", function (){
 
 	// Register Events
-	jsUnityRunner.API.bindEvents();
+	jsUnityRunner.API.registerEvents();
 
 	// Override API
 	jsUnity.run = jsUnityRunner.API.run;
 
-	jsUnityRunner.Runner.loadTests();
+	jsUnityRunner.Runner.loadTestSuites();
 	
 	jsUnity.error = function (eStr){
 		jsUnityRunner.Logger.error(eStr);

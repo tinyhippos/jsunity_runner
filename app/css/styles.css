@@ -73,7 +73,6 @@ h3{ font-size: 1.00em; }
     overflow: auto;
     border: 1px solid #CCCCCC;
     margin: 1em auto;
-    line-height: 20px;
 }
 
 #test_logger{

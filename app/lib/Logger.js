@@ -7,14 +7,14 @@
 
         warn: function (msg){
 			if(this.verbose){
-				var d = document.getElementById($.Constants.INFO_LOGGER_DIV);
+				var d = $.Utils.id($.Constants.INFO_LOGGER_DIV);
 				d.innerHTML += msg + "<br />";
 				d.scrollTop = d.scrollHeight;
 			}
         },
 
         log: function (msg, colour){
-			var d = document.getElementById($.Constants.LOGGER_DIV);
+			var d = $.Utils.id($.Constants.LOGGER_DIV);
 			colour = colour || "#000000";
 			d.innerHTML += '<span style="color:' + colour + ';">' + msg + "</span><br />";
 			d.scrollTop = d.scrollHeight;
@@ -26,8 +26,8 @@
 		},
 
         clear: function (){
-            document.getElementById($.Constants.LOGGER_DIV).innerHTML = "";
-            document.getElementById($.Constants.INFO_LOGGER_DIV).innerHTML = "";
+            $.Utils.id($.Constants.LOGGER_DIV).innerHTML = "";
+            $.Utils.id($.Constants.INFO_LOGGER_DIV).innerHTML = "";
         }
 		
     };

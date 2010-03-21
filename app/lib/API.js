@@ -1,23 +1,16 @@
 (jsUnityRunner.API = function ($){
 
 	var _suites = [],
-		_suiteNames = [],
 		_asyncSuiteIndex,
 		_asyncTestIndex,
         _currentSuite,
         _currentTest,
-        // flag for asynchronous Test sections (setup, test, teardown)
-        _asyncSectionShouldWait = false,
+        _asyncProcessShouldWait = false,
         _defaultWaitInterval = 5000,
         _waitInterval = 5000,
         _assertCallbackWasCalled = false;
 
-    // copied from jsUnity since its a private method.
-	function _plural(cnt, unit) {
-        return cnt + " " + unit + (cnt == 1 ? "" : "s");
-    }
-
-    function _jsUnityError(e){
+    function _isJSUnityError(e){
         return (e.name && e.message) ? false : true;
     }
 
@@ -25,19 +18,19 @@
         
         var now = (new Date()).getTime();
 
-        if(_asyncSectionShouldWait && stopTime > now){
+        if(_asyncProcessShouldWait && stopTime > now){
             setTimeout(function() {
                 _processsor(event, stopTime, errorMessage);
             }, 100);
         }
         else{
             // TODO: figure out logic to stop additional setTimeout fails when expecting a callback assert (with _assertCallbackWasCalled)
-            if (_asyncSectionShouldWait) {
+            if (_asyncProcessShouldWait) {
                 _currentTest.failed = true;
                 _currentTest.messages.push(errorMessage + "Test failed due to timeout!");
             }
 
-            _asyncSectionShouldWait = false;
+            _asyncProcessShouldWait = false;
             _assertCallbackWasCalled = false;
             setTimeout(function (){
 				$.Event.trigger(event);
@@ -46,7 +39,7 @@
 
     }
 
-    function _assertCallbackInCurrentTestScope(callback, scope){
+    function _applyToCurrentTest(callback, scope){
         $.Utils.validateArgumentType(callback, "function");
 
         try{
@@ -54,7 +47,7 @@
         }
         catch(e){
 
-            if(!_jsUnityError(e)){
+            if(!_isJSUnityError(e)){
                 $.Exception.handle(e);
             }
 
@@ -75,7 +68,6 @@
 			_asyncTestIndex = 0;
 			_asyncSuiteIndex = 0;
 			_suites = [];
-			_suiteNames = [];
 
 			for (i = 0; i < arguments.length; i++) {
 				// TODO: validate a Test Suite
@@ -97,7 +89,7 @@
 
 
         // API methods
-        bindEvents: function(){
+        registerEvents: function(){
         
             var i,
                 events = [
@@ -120,17 +112,19 @@
 
         // makes the runner stop at whatever point in a test (setUp, test or tearDown) and wait until shouldWait is toggled again
         startAsyncTest: function(waitInterval) {
-            _asyncSectionShouldWait = true;
+            _asyncProcessShouldWait = true;
             _waitInterval = waitInterval || _waitInterval;
+            $.Logger.warn("START ASYNC ==> Beginning delay IN (" + _currentTest.name + ")");
         },
 
         endAsyncTest: function(callback, scope) {
             if(callback){
-                _assertCallbackInCurrentTestScope(callback, scope);
+                _applyToCurrentTest(callback, scope);
                 _assertCallbackWasCalled = true;
             }
-            _asyncSectionShouldWait = false;
+            _asyncProcessShouldWait = false;
             _waitInterval = _defaultWaitInterval;
+            $.Logger.warn("STOP ASYNC ==> Interrupt; Continuing");
         },
 
         // async methods
@@ -143,16 +137,14 @@
 				var suite = _suites[_asyncSuiteIndex],
 				suiteLength = suite.tests.length;
 
-				$.Runner.startSuite(suite, suiteLength, _plural(suiteLength, "test"));
-
-				_suiteNames.push(suite.suiteName);
+				$.Runner.notifySuiteStart(suite);
 
 				setTimeout(function (){
 					$.Event.trigger($.Event.eventTypes.asyncTest);
 				}, 0);
 
 			}
-            else{  $.Runner.end(); }
+            else{  $.Runner.complete(); }
 
 
         },
@@ -180,7 +172,7 @@
             }
             catch(e){
 
-                if(!_jsUnityError(e)){
+                if(!_isJSUnityError(e)){
                     $.Exception.handle(e);
                 }
 
@@ -200,7 +192,7 @@
                 _processsor($.Event.eventTypes.asyncTearDown, (new Date()).getTime() + _waitInterval, "Failed at TestRun :: ");
             }
             catch(e){
-                if(!_jsUnityError(e)){
+                if(!_isJSUnityError(e)){
                     $.Exception.handle(e);
                 }
 
@@ -220,7 +212,7 @@
                 _processsor($.Event.eventTypes.asyncProceedToNext, (new Date()).getTime() + _waitInterval, "Failed at TearDown :: ");
             }
             catch(e){
-                if(!_jsUnityError(e)){
+                if(!_isJSUnityError(e)){
                     $.Exception.handle(e);
                 }
 
