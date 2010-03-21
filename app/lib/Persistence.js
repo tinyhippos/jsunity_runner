@@ -1,6 +1,7 @@
 (jsUnityRunner.Persistence = function($){
 
-    var localStorage = (window && window.localStorage) || null;
+    // TODO: fix so persistence uses Cookies in FF and Opera, and auto detection
+    var _localStorage = (window && window.localStorage) || null;
 
 	function _validateAndSetPrefix(prefix) {
 		if (prefix) {
@@ -18,7 +19,7 @@
                 $.Utils.validateArgumentType(value, "string");
             }
 
-            localStorage[_validateAndSetPrefix(prefix)+key] = value;
+            _localStorage[_validateAndSetPrefix(prefix)+key] = value;
 
             $.Event.trigger($.Event.eventTypes.storageUpdated, [key, prefix, value, false]);
 		},
@@ -32,7 +33,7 @@
             }
 
             prefix = _validateAndSetPrefix(prefix);
-            localStorage[prefix+key] = JSON.stringify(obj);
+            _localStorage[prefix+key] = JSON.stringify(obj);
 
             $.Event.trigger($.Event.eventTypes.storageUpdated, [key, prefix, obj, false]);
 		},
@@ -41,14 +42,14 @@
             $.Utils.validateNumberOfArguments(1, 2, arguments.length);
             $.Utils.validateArgumentType(key, "string", null, "Persistence.retrieve");
 
-            return localStorage[_validateAndSetPrefix(prefix)+key];
+            return _localStorage[_validateAndSetPrefix(prefix)+key];
 		},
 
 		retrieveObject: function (key, prefix){
             $.Utils.validateNumberOfArguments(1, 2, arguments.length);
             $.Utils.validateArgumentType(key, "string");
 
-            var retrievedValue = localStorage[_validateAndSetPrefix(prefix)+key];
+            var retrievedValue = _localStorage[_validateAndSetPrefix(prefix)+key];
             return retrievedValue ? JSON.parse(retrievedValue) : retrievedValue;
 		},
 
@@ -58,9 +59,9 @@
 
             prefix = _validateAndSetPrefix(prefix);
 
-            var item = localStorage[prefix+key];
+            var item = _localStorage[prefix+key];
 
-            localStorage.removeItem(prefix+key);
+            _localStorage.removeItem(prefix+key);
 
             $.Event.trigger($.Event.eventTypes.storageUpdated, [key, prefix, item, true]);
 		},
@@ -74,10 +75,10 @@
             prefix = _validateAndSetPrefix(prefix);
 
             // loop over keys and regex out the ones that have our prefix and delete them
-            for (key in localStorage) {
+            for (key in _localStorage) {
                 if (key.match("^"+prefix)) {
-                    temp = localStorage[key];
-                    localStorage.removeItem(key);
+                    temp = _localStorage[key];
+                    _localStorage.removeItem(key);
                     $.Event.trigger($.Event.eventTypes.storageUpdated, [key, prefix, temp, true]);
                 }
             }

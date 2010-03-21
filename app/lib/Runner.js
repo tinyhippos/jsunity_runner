@@ -108,6 +108,7 @@
             var endTime = (new Date().getTime() - _startTime);
             $.Utils.id($.Constants.RUNNER_STATUS_DIV).innerHTML = endTime + " ms elapsed";
             $.Logger.warn("<br />Completed Test Run! (" + endTime + " ms)");
+            $.Event.trigger($.Event.eventTypes.ApplicationState);
         },
 
 		loadTestSuites: function (){
@@ -121,9 +122,6 @@
             if(appState && appState.verbose){
                 $.Utils.id($.Constants.RUNNER_VERBOSE_CHECKBOX).checked = true;
             }
-
-            $.Console.log("selected is! ==> " + (appState && appState.selectedTest));
-            $.Console.log("verbose is! ==> " + (appState && appState.verbose));
 
             for (suite in $.Tests){ if($.Tests.hasOwnProperty(suite)){
                 this.loadOption($.Tests[suite], suite, (appState && appState.selectedTest));
