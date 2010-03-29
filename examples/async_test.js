@@ -78,6 +78,37 @@
 
         },
 
+        test_async_test_can_parse_xml_doc: function(){
+
+            $.API.startAsyncTest();
+
+            var xmlHttp = new XMLHttpRequest();
+
+            xmlHttp.onreadystatechange = function() {
+                var xmlDoc;
+
+                if (xmlHttp.readyState === 4) {
+                    $.API.endAsyncTest();
+
+                    xmlDoc = xmlHttp.responseXML;
+                    $.API.asyncProcessor(function() {
+                        var nodes;
+                        var oEvaluator = new XPathEvaluator();
+                        nodes = oEvaluator.evaluate("//widget", xmlDoc, null, XPathResult.ANY_TYPE, null);
+
+                        node = nodes.iterateNext();
+                        console.log(node);
+                        $j.assertions.assertTypeOf("object", nodes);
+                    }, this);
+                }
+            };
+
+            xmlHttp.open("GET", "examples/config.xml", true);
+
+            xmlHttp.send(null);
+
+        },
+
         test_a_test_after_async_tests: function(){
             $j.assertions.assertNull(null);
         },
