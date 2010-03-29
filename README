@@ -1,4 +1,4 @@
-jsUnityRunner : A lightweight and asynchronous Test Runner for jsUnity.
+jsUnityRunner : A Test Runner for jsUnity.
 
 Check out the Wiki for detailed info and releases.
   http://wiki.github.com/tinyhippos/jsUnityRunner/
@@ -8,14 +8,14 @@ See the jsUnity Wiki as well for test helpers.
 
 
 
------- Notes
+--------- Notes
 
 Currently being developed and tested in Chrome.
 But! Universal support (as per the jsUnity way) will be a definite goal.
 
 
 
------- Getting Started
+--------- Getting Started
 
 Place a test file anywhere you want (though tests/ is recommended).
 Then just include it in index.html along with other tests. jsUnityRunner will pick up on it.
@@ -26,11 +26,13 @@ Then just include it in index.html along with other tests. jsUnityRunner will pi
 See the examples folder for creating test suites.
 
 
------- Attributions
+--------- Attributions
 
-* Licensed Under *
 
-The MIT License (http://www.opensource.org/licenses/mit-license.php)
+** Licensed Under **
+
+The MIT License
+http://www.opensource.org/licenses/mit-license.php
 
 Copyright (c) 2010 all contributors:
 
@@ -39,10 +41,10 @@ Dan Silivestru
 
 
 
-* Other References *
+** Other **
 
-jsUnity : Universal JavaScript Testing Framework
+jsUnityRunner makes use of the following third party resources. (kudos)
+(See thirdparty/ files for license declaration.)
 
-http://jsunity.com/
-
-Copyright (c) 2009 Ates Goral (MIT license), see also source file for original license.
+--> jsUnity : Universal JavaScript Testing Framework
+--> jQuery JavaScript Library

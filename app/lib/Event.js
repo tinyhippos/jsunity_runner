@@ -15,7 +15,9 @@
             asyncSetUp: "asyncSetUp",
             asyncTearDown: "asyncTearDown",
             asyncTestRun: "asyncTestRun",
-            asyncProceedToNext: "asyncProceedToNext"
+            asyncProceedToNext: "asyncProceedToNext",
+            storageUpdated: "storageUpdated",
+            ApplicationState:"ApplicationState"
         },
 
         on: function (eventType, listener, scope) {

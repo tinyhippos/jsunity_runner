@@ -2,27 +2,40 @@
 
 (jsUnityRunner.Runner = function ($){
 
-	var _suites = [],
+	var _suites = $.Tests,
 		_markup,
-		_amountOfTests = 0,
-		_amountOfCompletedTests = 0,
-        _failedAmount = 0,
-        _passedAmount = 0,
-		_progress_failed = false;
+        _results = {
+            "totalTests": 0,
+            "completedTests": 0,
+            "failedTests": 0,
+            "passedTests": 0
+        },
+		_progress_failed = false,
+        _startTime;
 
     function _countTests(suiteArray){
         var test,
-            temp = 0,
-            i;
+            suite,
+            temp = 0;
 
-        for(i = 0; i < suiteArray.length; i++){
-            for(test in suiteArray[i]){ if(suiteArray[i].hasOwnProperty(test)){
-                    if(test.match(/^test/)){
-                        temp++;
-                    }
+        for(suite in suiteArray){ if(suiteArray.hasOwnProperty(suite)){
+            for(test in suiteArray[suite]){ if(suiteArray[suite].hasOwnProperty(test)){
+                if(test.match(/^test/)){
+                    temp++;
                 }
-            }
-        }
+            }}
+        }}
+
+        return temp;
+    }
+
+    function _suitesToArray(){
+        var suite,
+            temp = [];
+
+        for(suite in _suites){ if(_suites.hasOwnProperty(suite)){
+            temp.push(_suites[suite]);
+        }}
 
         return temp;
     }
@@ -32,29 +45,28 @@
 		// Public Methods
         run: function (whatToRun, verbose){
 
-            var individualSuite;
-
 			try{
 
 				_markup = document.getElementById($.Constants.RUNNER_SELECTOR).innerHTML;
 				_progress_failed = false;
 
-				this.clear();
+				this.reset();
 
 				$.Logger.verbose = verbose || false;
 
                 if(whatToRun === "all"){
                     // TODO: figure out way to do this only once per load and not every run
-                    _amountOfTests = _countTests(_suites);
-                    jsUnity.run.apply(jsUnity, _suites);
+                    _results.totalTests = _countTests(_suites);
+                    _startTime = new Date().getTime();
+                    jsUnity.run.apply(jsUnity, _suitesToArray());
                 }
                 else{
-                    individualSuite = _suites[parseInt(whatToRun, 10)];
-                    if(!individualSuite){
+                    if(!_suites[whatToRun]){
                         $.Exception.raise($.Exception.types.TestSuite, "Uknown test suite, can not run Test Suite(s).");
                     }else{
-                        _amountOfTests = _countTests( [individualSuite] );
-                        jsUnity.run(individualSuite);
+                        _results.totalTests = _countTests( [_suites[whatToRun]] );
+                        _startTime = new Date().getTime();
+                        jsUnity.run(_suites[whatToRun]);
                     }
                 }
 
@@ -68,87 +80,121 @@
 
         },
 
-		loadTests: function (){
-			var suite,
-				count = 0,
-                test;
+        registerEvents: function(){
 
-			for (suite in $.Tests){ if($.Tests.hasOwnProperty(suite)){
-				_suites.push($.Tests[suite]);
-				this.loadOption($.Tests[suite], count);
-				count++;
-			}}
+//            $.Event.on($.Event.eventTypes.storageUpdated, function(key, prefix, obj, removed){
+//                $.Console.log(key + " AND prefix==" + prefix + " AND removed=" + removed);
+//                $.Console.log(obj);
+//            });
+
+            $.Event.on($.Event.eventTypes.ApplicationState, function(){
+                
+                var runnerVerbose = $.Utils.id($.Constants.RUNNER_VERBOSE_CHECKBOX),
+                    selectedTest = $.Utils.id($.Constants.RUNNER_SELECTOR);
+
+                if(!runnerVerbose){ $.Exception.raise($.Exception.type.DomObjectNotFound, $.Constants.RUNNER_VERBOSE_CHECKBOX + " was not found."); }
+                if(!selectedTest){ $.Exception.raise($.Exception.type.DomObjectNotFound, $.Constants.RUNNER_SELECTOR + " was not found."); }
+
+                $.Persistence.saveObject($.Constants.storage.ApplicationState, {
+                    "verbose": runnerVerbose.checked,
+                    "selectedTest": selectedTest.value
+                });
+
+            });
+
+        },
+
+        complete: function(){
+            var endTime = (new Date().getTime() - _startTime);
+            $.Utils.id($.Constants.RUNNER_STATUS_DIV).innerHTML = endTime + " ms elapsed";
+            $.Logger.warn("<br />Completed Test Run! (" + endTime + " ms)");
+            $.Event.trigger($.Event.eventTypes.ApplicationState);
+        },
+
+		loadTestSuites: function (){
+
+            var suite,
+                count = 0,
+                test,
+                appState = $.Persistence.retrieveObject($.Constants.storage.ApplicationState) || null;
+
+            // TODO: put into a UI class
+            if(appState && appState.verbose){
+                $.Utils.id($.Constants.RUNNER_VERBOSE_CHECKBOX).checked = true;
+            }
+
+            for (suite in $.Tests){ if($.Tests.hasOwnProperty(suite)){
+                this.loadOption($.Tests[suite], suite, (appState && appState.selectedTest));
+                count++;
+            }}
 
 		},
 
-		loadOption: function (suite, count){
-
-			document.getElementById($.Constants.RUNNER_SELECTOR).appendChild($.Utils.createElement("option", {
-					"value": count,
+		loadOption: function (suite, suitePropertyName, selectedPropertyName){
+            var el = $.Utils.createElement("option", {
+					"value": suitePropertyName,
 					"innerHTML":  suite.suiteName || "Uknown Test Suite"
-				}));
+				});
+            if(suitePropertyName === selectedPropertyName){
+                el.setAttribute("selected", "selected");
+            }
+			$.Utils.id($.Constants.RUNNER_SELECTOR).appendChild(el);
 
 		},
 
-		clear: function (){
-			document.getElementById($.Constants.PROGRESS_SCROLL).style.width = 0;
-			document.getElementById($.Constants.PROGRESS_DIV).innerHTML = "";
-			_amountOfTests = 0;
-			_amountOfCompletedTests = 0;
-            _failedAmount = 0;
-            _passedAmount = 0;
+		reset: function (){
+			$.Utils.id($.Constants.PROGRESS_SCROLL).style.width = 0;
+			$.Utils.id($.Constants.PROGRESS_DIV).innerHTML = "";
+			$.Utils.id($.Constants.RUNNER_STATUS_DIV).innerHTML = "";
+			$.Utils.id($.Constants.RUNNER_RESULTS_DIV).innerHTML = "";
+			_results.totalTests = 0;
+			_results.completedTests = 0;
+            _results.failedTests = 0;
+            _results.passedTests = 0;
 			$.Logger.clear();
 		},
 		
 		resetMarkup: function (){
-			document.getElementById($.Constants.MARKUP_DIV).innerHTML = _markup;
+			$.Utils.id($.Constants.MARKUP_DIV).innerHTML = _markup;
 		},
 
-		// methods called fby jsUnity itself
+        // updates progress.
+		updateProgress: function (test){
+			try{
+                var str;
 
-		updateResults: function (results){
-			var total = results.passed + results.failed;
-            $.Logger.log("<br /><br /><strong>RESULTS:</strong><br />");
-            $.Logger.log(results.passed + " passed");
-            $.Logger.log(results.failed + " failed");
-            $.Logger.log(results.duration + "ms elapsed for " + total + " tests");
+                if(test.failed){
+                    _results.failedTests++;
+                    _progress_failed = true;
+                    $.Logger.log('[FAILED]  <span style="color: black">' + test.name + '</span><br />--> ' + test.messages.join("<br />--> "), "red");
+                    //$.Logger.warn(test.name + " --> " + error);
+                }else{
+                    _results.passedTests++;
+                    $.Logger.log('[PASSED]  <span style="color: black">' + test.name + "</span>", "green");
+                }
+
+                _results.completedTests++;
+                $.Utils.id($.Constants.PROGRESS_DIV).innerHTML = _results.completedTests + " /" + _results.totalTests;
+                $.Utils.id($.Constants.PROGRESS_SCROLL).style.width = ((_results.completedTests / _results.totalTests) * 100) + "%";
+                $.Utils.id($.Constants.PROGRESS_SCROLL).style.backgroundColor = (_progress_failed ? "red" : "#40D940");
+
+                str =  _results.passedTests + " passed :: " + _results.failedTests + " failed";
+                $.Utils.id($.Constants.RUNNER_RESULTS_DIV).innerHTML = str;
+            }
+            catch(e){
+                $.Exception.handle(e);
+            }
 		},
 
-		updateProgress: function (){
-			var str;
-
-            _amountOfCompletedTests++;
-			document.getElementById($.Constants.PROGRESS_DIV).innerHTML = _amountOfCompletedTests + " /" + _amountOfTests;
-			document.getElementById($.Constants.PROGRESS_SCROLL).style.width = ((_amountOfCompletedTests / _amountOfTests) * 100) + "%";
-			document.getElementById($.Constants.PROGRESS_SCROLL).style.backgroundColor = (_progress_failed ? "red" : "#40D940");
-
-            str = "passed=" + _passedAmount + " :: failed=" + _failedAmount;
-			document.getElementById($.Constants.RUNNER_RESULTS_DIV).innerHTML = str;
-		},
-
-		passTest: function (test){
-            _passedAmount++;
-			$.Logger.log('[PASSED]  ' + test.name, "green");
-			this.updateProgress();
-		},
-
-		failTest: function (test, error){
-            _failedAmount++;
-			_progress_failed = true;
-			$.Logger.log('[FAILED]  ' + test.name + ' :: ' + error, "red");
-			$.Logger.warn(test.name + " --> " + error);
-			this.updateProgress();
-		},
-
-		startSuite: function (suite, count, countStr){
+		notifySuiteStart: function (suite){
 
 			if(suite.resetMarkup === true) {
 				this.resetMarkup();
 			}
 			
-			$.Logger.warn("<strong>Running " + (suite.suiteName || "unnamed test suite") + "</strong>");
-			$.Logger.warn(countStr + " found");
-			$.Logger.log("------- " + suite.suiteName + "-------");
+			$.Logger.warn("Running " + (suite.suiteName || "unnamed test suite"));
+			$.Logger.warn(suite.tests.length + " tests found");
+			$.Logger.log("<strong>" + suite.suiteName + "</strong>");
 			
 		}
         
