@@ -12,14 +12,14 @@ window.addEventListener("load", function (){
 	jsUnityRunner.API.registerEvents();
 	jsUnityRunner.Runner.registerEvents();
 
-    // DOM Events
-    $("#" + jsUnityRunner.Constants.RUNNER_VERBOSE_CHECKBOX).click(function(){
-        jsUnityRunner.Event.trigger(jsUnityRunner.Event.eventTypes.ApplicationState);
-    });
+	// DOM Events
+	$("#" + jsUnityRunner.Constants.RUNNER_VERBOSE_CHECKBOX).click(function(){
+		jsUnityRunner.Event.trigger(jsUnityRunner.Event.eventTypes.ApplicationState);
+	});
 
-    $("#" + jsUnityRunner.Constants.RUNNER_SELECTOR).change(function(){
-        jsUnityRunner.Event.trigger(jsUnityRunner.Event.eventTypes.ApplicationState);
-    });
+	$("#" + jsUnityRunner.Constants.RUNNER_SELECTOR).change(function(){
+		jsUnityRunner.Event.trigger(jsUnityRunner.Event.eventTypes.ApplicationState);
+	});
 
 	// Override API
 	jsUnity.run = jsUnityRunner.API.run;
