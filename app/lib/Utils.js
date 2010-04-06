@@ -1,18 +1,19 @@
 // ----------------- Utils ----------------- \\
 (jsUnityRunner.Utils = function ($){
 
-    return {
+	return {
 
-        createElement: function(elementType, attributes){
+		createElement: function(elementType, attributes){
 
 			attributes = attributes || {};
 
 			this.validateNumberOfArguments(1, 2, arguments.length);
 
-			var d = document.createElement(elementType);
+			var d = document.createElement(elementType),
+				attr;
 
-			for (var attr in attributes){
-				
+			for (attr in attributes){
+
 				if(attributes.hasOwnProperty(attr)){
 					switch (attr.toLowerCase()){
 
@@ -27,18 +28,19 @@
 						default:
 							d.setAttribute(attr,attributes[attr]);
 					}
+
 				}
 
 			}
-
+			
 			return d;
 		},
 
-        id: function(id){
-            return document.getElementById(id);
-        },
-        
-        validateNumberOfArguments: function (lowerBound, upperBound, numberOfArguments){
+		id: function(id){
+			return document.getElementById(id);
+		},
+
+		validateNumberOfArguments: function (lowerBound, upperBound, numberOfArguments){
 
 			if (arguments.length < 3 || arguments.length > 3) {
 				$.Exception.raise($.Exception.types.Argument, "Wrong number of arguments when calling: tinyHippos.Utils.validateNumberOfArguments()");
@@ -57,29 +59,29 @@
 			}
 
 		},
-        
+
 		validateArgumentType: function (arg, argType){
 			var invalidArg = false;
-            switch (argType) {
-                case "array":
-                    if (!arg instanceof Array){ invalidArg = true; }
-                break;
-                case "date":
-                    if (!arg instanceof Date){ invalidArg = true; }
-                break;
-                default:
+			switch (argType) {
+				case "array":
+					if (!arg instanceof Array){ invalidArg = true; }
+				break;
+				case "date":
+					if (!arg instanceof Date){ invalidArg = true; }
+				break;
+				default:
 					if (typeof arg !== argType){ invalidArg = true; }
-                break;
-            }
-            if(invalidArg) { $.Exception.raise($.Exception.types.ArgumentType, "Invalid Argument type. argument: " + arg + " ==> was expected to be of type: " + argType); }
+				break;
+			}
+			if(invalidArg) { $.Exception.raise($.Exception.types.ArgumentType, "Invalid Argument type. argument: " + arg + " ==> was expected to be of type: " + argType); }
 		},
 
 		validateMultipleArgumentTypes: function (argArray, argTypeArray){
 			for (var i = 0; i < argArray.length; i+=1){
-                this.validateArgumentType(argArray[i], argTypeArray[i]);
-            }
+				this.validateArgumentType(argArray[i], argTypeArray[i]);
+			}
 		}
-        
-    };
+
+	};
     
 }(jsUnityRunner));

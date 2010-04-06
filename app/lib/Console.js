@@ -14,9 +14,9 @@
 
 	return {
 
-        isAvailable: function(){
-            return console ? true : false;
-        },
+		isAvailable: function(){
+			return console ? true : false;
+		},
 
 		/*
 		 * Public Method: returns all available logging options (only supports append at this time)
