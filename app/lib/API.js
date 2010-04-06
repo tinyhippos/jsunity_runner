@@ -3,64 +3,69 @@
 	var _suites = [],
 		_asyncSuiteIndex,
 		_asyncTestIndex,
-        _currentSuite,
-        _currentTest,
-        _asyncProcessShouldWait = false,
-        _defaultWaitInterval = 5000,
-        _waitInterval = 5000,
-        _assertCallbackWasCalled = false;
+		_currentSuite,
+		_currentTest,
+		_asyncProcessShouldWait = false,
+		_defaultWaitInterval = 5000,
+		_waitInterval = 5000,
+		_assertCallbackWasCalled = false;
 
-    function _isJSUnityError(e){
-        return (e.name && e.message) ? false : true;
-    }
+	function _isJSUnityError(e){
+		return (e.name && e.message) ? false : true;
+	}
 
-    function _processsor(event, stopTime, errorMessage){
-        
-        var now = (new Date()).getTime();
+	function _processsor(event, stopTime, errorMessage){
 
-        if(_asyncProcessShouldWait && stopTime > now){
-            setTimeout(function() {
-                _processsor(event, stopTime, errorMessage);
-            }, 100);
-        }
-        else{
-            // TODO: figure out logic to stop additional setTimeout fails when expecting a callback assert (with _assertCallbackWasCalled)
-            if (_asyncProcessShouldWait) {
-                _currentTest.failed = true;
-                _currentTest.messages.push(errorMessage + "Test failed due to timeout!");
-            }
+		var now = (new Date()).getTime();
 
-            _asyncProcessShouldWait = false;
-            _assertCallbackWasCalled = false;
-            setTimeout(function (){
+		if(_asyncProcessShouldWait && stopTime > now){
+
+			setTimeout(function() {
+				_processsor(event, stopTime, errorMessage);
+
+			}, 100);
+		}
+		else{
+
+			// TODO: figure out logic to stop additional setTimeout fails when expecting a callback assert (with _assertCallbackWasCalled)
+			if (_asyncProcessShouldWait) {
+				_currentTest.failed = true;
+				_currentTest.messages.push(errorMessage + "Test failed due to timeout!");
+			}
+
+			_asyncProcessShouldWait = false;
+			_assertCallbackWasCalled = false;
+
+			setTimeout(function (){
 				$.Event.trigger(event);
 			}, 0);
-        }
 
-    }
+		}
 
-    function _applyToCurrentTest(callback, scope){
-        $.Utils.validateArgumentType(callback, "function");
+	}
 
-        try{
-            callback.call(scope);
-        }
-        catch(e){
+	function _applyToCurrentTest(callback, scope){
+		$.Utils.validateArgumentType(callback, "function");
 
-            if(!_isJSUnityError(e)){
-                $.Exception.handle(e);
-            }
+		try{
+			callback.call(scope);
+		}
+		catch(e){
 
-            _currentTest.failed = true;
-            _currentTest.messages.push("Failed at TestRun with error: " + e);
+			if(!_isJSUnityError(e)){
+				$.Exception.handle(e);
+			}
 
-        }
-    }
+			_currentTest.failed = true;
+			_currentTest.messages.push("Failed at TestRun with error: " + e);
+
+		}
+	}
 
 	return {
 
-        // override of jsUnity.run
-        run: function(){
+		// override of jsUnity.run
+		run: function(){
 
 			var i;
 
@@ -74,7 +79,9 @@
 					_suites.push(jsUnity.compile(arguments[i]));
 				}
 				catch (e) {
-					if($.Console.isAvailable()) {$.Console.error("TestSuite exception :: " + e); }
+					if($.Console.isAvailable()) {
+						$.Console.error("TestSuite exception :: " + e);
+					}
 					return false;
 				}
 			}
@@ -87,47 +94,47 @@
 		},
 
 
-        // API methods
-        registerEvents: function(){
-        
-            var i,
-                events = [
-                  $.Event.eventTypes.asyncSuite,
-                  $.Event.eventTypes.asyncTest,
-                  $.Event.eventTypes.asyncSetUp,
-                  $.Event.eventTypes.asyncTestRun,
-                  $.Event.eventTypes.asyncTearDown,
-                  $.Event.eventTypes.asyncProceedToNext
-                ],
-                addEventCallback = function(event){
-                                return(function(){ $.API[event](); });
-                            };
+		// API methods
+		registerEvents: function(){
 
-            for (i = 0; i < events.length; i++) {
-                $.Event.on(events[i], addEventCallback(events[i]));
-            }
-            
-        },
+			var i,
+				events = [
+				$.Event.eventTypes.asyncSuite,
+				$.Event.eventTypes.asyncTest,
+				$.Event.eventTypes.asyncSetUp,
+				$.Event.eventTypes.asyncTestRun,
+				$.Event.eventTypes.asyncTearDown,
+				$.Event.eventTypes.asyncProceedToNext
+				],
+				addEventCallback = function(event){
+					return(function(){ $.API[event](); });
+				};
 
-        // makes the runner stop at whatever point in a test (setUp, test or tearDown) and loop in _processor
-        startAsyncTest: function(waitInterval) {
-            _asyncProcessShouldWait = true;
-            _waitInterval = waitInterval || _waitInterval;
-            $.Logger.warn("START ASYNC ==> Beginning delay IN (" + _currentTest.name + ")");
-        },
+			for (i = 0; i < events.length; i++) {
+				$.Event.on(events[i], addEventCallback(events[i]));
+			}
 
-        endAsyncTest: function(callback, scope) {
-            if(callback){
-                _applyToCurrentTest(callback, scope);
-                _assertCallbackWasCalled = true;
-            }
-            _asyncProcessShouldWait = false;
-            _waitInterval = _defaultWaitInterval;
-            $.Logger.warn("STOP ASYNC ==> Interrupt; Continuing");
-        },
+		},
 
-        // async methods
-        // iterate over test suites to be run
+		// makes the runner stop at whatever point in a test (setUp, test or tearDown) and loop in _processor
+		startAsyncTest: function(waitInterval) {
+			_asyncProcessShouldWait = true;
+			_waitInterval = waitInterval || _waitInterval;
+			$.Logger.warn("START ASYNC ==> Beginning delay IN (" + _currentTest.name + ")");
+		},
+
+		endAsyncTest: function(callback, scope) {
+			if(callback){
+				_applyToCurrentTest(callback, scope);
+				_assertCallbackWasCalled = true;
+			}
+			_asyncProcessShouldWait = false;
+			_waitInterval = _defaultWaitInterval;
+			$.Logger.warn("STOP ASYNC ==> Interrupt; Continuing");
+		},
+
+		// async methods
+		// iterate over test suites to be run
 		asyncSuite: function (){
 
 			// "recursive" base case
@@ -142,90 +149,89 @@
 				}, 0);
 
 			}
-            else{
-                $.Runner.complete();
-            }
+			else{
+				$.Runner.complete();
+			}
 
-        },
+		},
 
 		asyncTest: function (){
 
-            _currentSuite = _suites[_asyncSuiteIndex];
+			_currentSuite = _suites[_asyncSuiteIndex];
 			_currentTest = _suites[_asyncSuiteIndex].tests[_asyncTestIndex];
-            _currentTest.messages = [];
-            _currentTest.failed = false;
+			_currentTest.messages = [];
+			_currentTest.failed = false;
 
-            setTimeout(function (){
-                $.Event.trigger($.Event.eventTypes.asyncSetUp);
-            }, 0);
+			setTimeout(function (){
+				$.Event.trigger($.Event.eventTypes.asyncSetUp);
+			}, 0);
 		},
 
-        asyncSetUp: function(){
-            try{
-                if(_currentSuite.setUp){
-                    _currentSuite.setUp();
-                }
+		asyncSetUp: function(){
+			try{
+				if(_currentSuite.setUp){
+					_currentSuite.setUp();
+				}
 
-                _processsor($.Event.eventTypes.asyncTestRun, (new Date()).getTime() + _waitInterval, "Failed at SetUp :: ");
-            }
-            catch(e){
+				_processsor($.Event.eventTypes.asyncTestRun, (new Date()).getTime() + _waitInterval, "Failed at SetUp :: ");
+			}
+			catch(e){
 
-                if(!_isJSUnityError(e)){
-                    $.Exception.handle(e);
-                }
+				if(!_isJSUnityError(e)){
+					$.Exception.handle(e);
+				}
 
-                _currentTest.failed = true;
-                _currentTest.messages.push("Failed at SetUp with error: " + e);
+				_currentTest.failed = true;
+				_currentTest.messages.push("Failed at SetUp with error: " + e);
 
-                _processsor($.Event.eventTypes.asyncTestRun, (new Date()).getTime() + _waitInterval, "Failed at SetUp :: ");
-//                _processsor($.Event.eventTypes.asyncTearDown, (new Date()).getTime(), "Failed at SetUp :: ");
-            }
-        },
+				_processsor($.Event.eventTypes.asyncTestRun, (new Date()).getTime() + _waitInterval, "Failed at SetUp :: ");
+			}
+		},
 
-        asyncTestRun: function(){
+		asyncTestRun: function(){
 
-            try{
+			try{
 				_currentTest.fn.call(_currentSuite.scope);
 
-                _processsor($.Event.eventTypes.asyncTearDown, (new Date()).getTime() + _waitInterval, "Failed at TestRun :: ");
-            }
-            catch(e){
-                if(!_isJSUnityError(e)){
-                    $.Exception.handle(e);
-                }
+				_processsor($.Event.eventTypes.asyncTearDown, (new Date()).getTime() + _waitInterval, "Failed at TestRun :: ");
+			}
+			catch(e){
+				if(!_isJSUnityError(e)){
+					$.Exception.handle(e);
+				}
 
-                _currentTest.failed = true;
-                _currentTest.messages.push("Failed at TestRun with error: " + e);
+				_currentTest.failed = true;
+				_currentTest.messages.push("Failed at TestRun with error: " + e);
 
-                _processsor($.Event.eventTypes.asyncTearDown, (new Date()).getTime(), "Failed at TestRun :: ");
-            }
+				_processsor($.Event.eventTypes.asyncTearDown, (new Date()).getTime(), "Failed at TestRun :: ");
+			}
 
-        },
+		},
 
-        asyncTearDown: function(){
-            try{
-                if(_currentSuite.tearDown){
-                    _currentSuite.tearDown();
-                }
-                _processsor($.Event.eventTypes.asyncProceedToNext, (new Date()).getTime() + _waitInterval, "Failed at TearDown :: ");
-            }
-            catch(e){
-                if(!_isJSUnityError(e)){
-                    $.Exception.handle(e);
-                }
+		asyncTearDown: function(){
+			try{
+				if(_currentSuite.tearDown){
+					_currentSuite.tearDown();
+				}
+				_processsor($.Event.eventTypes.asyncProceedToNext, (new Date()).getTime() + _waitInterval, "Failed at TearDown :: ");
+			}
+			catch(e){
+				if(!_isJSUnityError(e)){
+					$.Exception.handle(e);
+				}
 
-                _currentTest.failed = true;
-                _currentTest.messages.push("Failed at TearDown with error: " + e);
+				_currentTest.failed = true;
+				_currentTest.messages.push("Failed at TearDown with error: " + e);
 
-                _processsor($.Event.eventTypes.asyncProceedToNext, (new Date()).getTime(), "Failed at TearDown :: ");
-            }
-        },
+				_processsor($.Event.eventTypes.asyncProceedToNext, (new Date()).getTime(), "Failed at TearDown :: ");
+			}
+		},
 
-        asyncProceedToNext: function() {
+		asyncProceedToNext: function() {
 
-            $.Runner.updateProgress(_currentTest);
+			$.Runner.updateProgress(_currentTest);
 
-            _asyncTestIndex++;
+			_asyncTestIndex++;
 
 			if(_asyncTestIndex < _currentSuite.tests.length){
 
@@ -233,7 +239,8 @@
 					$.Event.trigger($.Event.eventTypes.asyncTest);
 				}, 0);
 
-			}else{
+			}
+			else{
 				// all done, go to next Test Suite
 				_asyncSuiteIndex++;
 				_asyncTestIndex = 0;
@@ -242,7 +249,7 @@
 					$.Event.trigger($.Event.eventTypes.asyncSuite);
 				}, 0);
 			}
-        }
+		}
 
 
 	};
