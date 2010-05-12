@@ -20,6 +20,7 @@
     <script type="text/javascript" src="app/lib/Exception.js"></script>
     <script type="text/javascript" src="app/lib/UnitTestHelpers.js"></script>
     <script type="text/javascript" src="app/lib/Utils.js"></script>
+    <script type="text/javascript" src="app/lib/UI.js"></script>
 
 
     <!-- Your Test Cases Here -->
@@ -44,21 +45,17 @@
 
         <div id="runner">
         
-            <form name="runner_form" action="" onsubmit="return false;" method="get">
+			<select id="runner_selector">
+				<option value="all">Run All Suites</option>
+			</select>
+			
+			<button id="runner_submit">Run</button>
+			
+			<button id="runner_reload">Reload</button>
+			<button id="runner_clear">Clear</button>
+			
+			<label for="runner_verbose">Verbose</label><input type="checkbox" id="runner_verbose" value="1" />
 
-                <select id="runner_selector" name="runner_selector">
-					<option value="all">Run All Suites</option>
-                </select>
-                
-                <button name="runner_submit" onclick="jsUnityRunner.Runner.run(document.runner_form.runner_selector.value, document.runner_form.runner_verbose.checked);">Run</button>
-                
-                <button onclick="location.reload(); return false;">Reload</button>
-                <button onclick="jsUnityRunner.Runner.clear(); return false;">Clear</button>
-                
-				<label for="runner_verbose" >Verbose</label><input type="checkbox" id="runner_verbose" name="runner_verbose" value="1" />
-                
-            </form>
-            
         </div>
 
         <div id="test_logger"></div>
