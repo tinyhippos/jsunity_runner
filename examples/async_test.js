@@ -167,10 +167,8 @@
                 var xmlDoc;
 
                 if (xmlHttp.readyState === 4) {
-                    $.API.endAsyncTest();
-
                     xmlDoc = xmlHttp.responseXML;
-                    $.API.asyncProcessor(function() {
+                    $.API.endAsyncTest(function() {
                         var nodes;
                         var oEvaluator = new XPathEvaluator();
                         nodes = oEvaluator.evaluate("//widget", xmlDoc, null, XPathResult.ANY_TYPE, null);
