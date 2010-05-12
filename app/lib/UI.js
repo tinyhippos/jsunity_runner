@@ -21,6 +21,14 @@
 			jQuery("#runner_clear").bind("click", function (){
 				$.Logger.clear();
 			});
+
+			jQuery("#runner_stop").bind("click", function (){
+				$.Runner.stop();
+			});
+
+			jQuery("#runner_resume").bind("click", function (){
+				$.Runner.resume();
+			});
 			
 			runner_verbose.bind("click", function(){
 				$.Event.trigger($.Event.eventTypes.ApplicationState);

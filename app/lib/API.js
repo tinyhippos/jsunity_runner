@@ -8,14 +8,23 @@
 		_asyncProcessShouldWait = false,
 		_defaultWaitInterval = 5000,
 		_waitInterval = 5000,
-		_assertCallbackWasCalled = false;
+		_assertCallbackWasCalled = false,
+		_terminated = false,
+		_resumeEvent;
 
 	function _isJSUnityError(e){
 		return (e.name && e.message) ? false : true;
 	}
 
 	function _processsor(event, stopTime, errorMessage){
-
+		
+		if (_terminated) {
+			(_resumeEvent = function (){
+				_processsor(event, stopTime, errorMessage);
+			});
+			return;
+		}
+		
 		var now = (new Date()).getTime();
 
 		if(_asyncProcessShouldWait && stopTime > now){
@@ -72,6 +81,8 @@
 			_asyncTestIndex = 0;
 			_asyncSuiteIndex = 0;
 			_suites = [];
+			_terminated = false;
+			_resumeEvent = null;
 
 			for (i = 0; i < arguments.length; i++) {
 				// TODO: validate a Test Suite
@@ -93,18 +104,30 @@
 
 		},
 
+		terminate: function (){
+			if(!_terminated) {
+				_terminated = true;
+			}
+		},
+
+		resume: function (){
+			if(_terminated) {
+				_terminated = false;
+				_resumeEvent.call(this);
+			}
+		},
 
 		// API methods
 		registerEvents: function(){
 
 			var i,
 				events = [
-				$.Event.eventTypes.asyncSuite,
-				$.Event.eventTypes.asyncTest,
-				$.Event.eventTypes.asyncSetUp,
-				$.Event.eventTypes.asyncTestRun,
-				$.Event.eventTypes.asyncTearDown,
-				$.Event.eventTypes.asyncProceedToNext
+					$.Event.eventTypes.asyncSuite,
+					$.Event.eventTypes.asyncTest,
+					$.Event.eventTypes.asyncSetUp,
+					$.Event.eventTypes.asyncTestRun,
+					$.Event.eventTypes.asyncTearDown,
+					$.Event.eventTypes.asyncProceedToNext
 				],
 				addEventCallback = function(event){
 					return(function(){ $.API[event](); });
@@ -156,7 +179,7 @@
 		},
 
 		asyncTest: function (){
-
+			
 			_currentSuite = _suites[_asyncSuiteIndex];
 			_currentTest = _suites[_asyncSuiteIndex].tests[_asyncTestIndex];
 			_currentTest.messages = [];

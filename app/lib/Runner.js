@@ -79,6 +79,16 @@
 
 		},
 
+		stop: function (){
+			$.API.terminate();
+			this.loading(false);
+		},
+
+		resume: function (){
+			this.loading(true);
+			$.API.resume();
+		},
+
 		registerEvents: function(){
 
 			$.Event.on($.Event.eventTypes.ApplicationState, function(){

@@ -22,7 +22,6 @@
     <script type="text/javascript" src="app/lib/Utils.js"></script>
     <script type="text/javascript" src="app/lib/UI.js"></script>
 
-
     <!-- Your Test Cases Here -->
     <script type="text/javascript" src="examples/example_suite.js"></script>
     <script type="text/javascript" src="examples/another_suite.js"></script>
@@ -39,9 +38,9 @@
             <div id="progress_scroll" style="width: 0;"></div>
         </div>
 
-        <div id="runner_results"> </div>
+        <div id="runner_results"></div>
 
-        <div id="runner_timer"> </div>
+        <div id="runner_timer"></div>
 
         <div id="runner">
         
@@ -53,8 +52,11 @@
 			
 			<button id="runner_reload">Reload</button>
 			<button id="runner_clear">Clear</button>
+			<button id="runner_stop">Stop</button>
+			<button id="runner_resume">Resume</button>
 			
-			<label for="runner_verbose">Verbose</label><input type="checkbox" id="runner_verbose" value="1" />
+			<label for="runner_verbose">Verbose</label>
+			<input type="checkbox" id="runner_verbose" value="1" />
 
         </div>
 
@@ -64,9 +66,7 @@
     </div>
 
     <!-- ----------------------- TEST MARKUP HERE ------------------------------ -->
-    <div id="markup" class="irrelevant">
-
-    </div>
+    <div id="markup" class="irrelevant"></div>
     <!-- ----------------------- TEST MARKUP HERE ------------------------------ -->
 
   </body>
