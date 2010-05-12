@@ -136,3 +136,15 @@ h3{ font-size: 1.00em; }
     margin: 0.3em;
     padding: 0.25em 0.5em;
 }
+
+.runner button {
+	
+}
+
+.runner button:hover {
+	opacity: 0.9;
+}
+
+.runner button:active {	
+	opacity: 0.5;
+}
