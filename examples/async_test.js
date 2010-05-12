@@ -161,23 +161,26 @@
 
             $.API.startAsyncTest();
 
-            var xmlHttp = new XMLHttpRequest();
+            var xmlHttp = new XMLHttpRequest(),
+            	nodes,
+            	oEvaluator;
 
             xmlHttp.onreadystatechange = function() {
-                var xmlDoc;
 
                 if (xmlHttp.readyState === 4) {
-                    xmlDoc = xmlHttp.responseXML;
+
                     $.API.endAsyncTest(function() {
-                        var nodes;
-                        var oEvaluator = new XPathEvaluator();
-                        nodes = oEvaluator.evaluate("//widget", xmlDoc, null, XPathResult.ANY_TYPE, null);
+
+                        oEvaluator = new XPathEvaluator();
+                        	
+                        nodes = oEvaluator.evaluate("//widget", xmlHttp.responseXML, null, XPathResult.ANY_TYPE, null);
 
                         node = nodes.iterateNext();
-                        console.log(node);
+
                         $j.assertions.assertTypeOf("object", nodes);
                     }, this);
                 }
+                
             };
 
             xmlHttp.open("GET", "examples/config.xml", true);

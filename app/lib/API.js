@@ -120,7 +120,7 @@
 		startAsyncTest: function(waitInterval) {
 			_asyncProcessShouldWait = true;
 			_waitInterval = waitInterval || _waitInterval;
-			$.Logger.warn("START ASYNC ==> Beginning delay IN (" + _currentTest.name + ")");
+			$.Logger.warn(_currentTest.name + " <strong>(Begin Async Wait)</strong>");
 		},
 
 		endAsyncTest: function(callback, scope) {
@@ -130,7 +130,7 @@
 			}
 			_asyncProcessShouldWait = false;
 			_waitInterval = _defaultWaitInterval;
-			$.Logger.warn("STOP ASYNC ==> Interrupt; Continuing");
+			$.Logger.warn(_currentTest.name + " <strong>(End Async Wait)</strong>");
 		},
 
 		// async methods

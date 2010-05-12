@@ -5,38 +5,35 @@
 	var _suites = $.Tests,
 		_markup,
 		_results = {
-		"totalTests": 0,
-		"completedTests": 0,
-		"failedTests": 0,
-		"passedTests": 0
+			"totalTests": 0,
+			"completedTests": 0,
+			"failedTests": 0,
+			"passedTests": 0
 		},
 		_progress_failed = false,
 		_startTime;
 
 	function _countTests(suiteArray){
-		var test,
-		suite,
-		temp = 0;
+		var count = 0;
 
-		for(suite in suiteArray){ if(suiteArray.hasOwnProperty(suite)){
-			for(test in suiteArray[suite]){ if(suiteArray[suite].hasOwnProperty(test)){
-				if(test.match(/^test/)){
-					temp++;
+		$.Utils.forEach(suiteArray, function(index, suite){
+			$.Utils.forEach(suite, function(testName, testFunc){
+				if(testName.match(/^test/)){
+					count++;
 				}
-			}}
-		}}
+			});
+		});
 
-		return temp;
+		return count;
 	}
 
 	function _suitesToArray(){
-		var suite,
-		temp = [];
-
-		for(suite in _suites){ if(_suites.hasOwnProperty(suite)){
-			temp.push(_suites[suite]);
-		}}
-
+		var temp = [];
+		
+		$.Utils.forEach(_suites, function (index, suite){
+			temp.push(suite);
+		});
+		
 		return temp;
 	}
 
@@ -44,6 +41,8 @@
 
 		// Public Methods
 		run: function (whatToRun, verbose){
+
+			this.loading(true);
 
 			try{
 
@@ -82,15 +81,10 @@
 
 		registerEvents: function(){
 
-			//            $.Event.on($.Event.eventTypes.storageUpdated, function(key, prefix, obj, removed){
-			//                $.Console.log(key + " AND prefix==" + prefix + " AND removed=" + removed);
-			//                $.Console.log(obj);
-			//            });
-
 			$.Event.on($.Event.eventTypes.ApplicationState, function(){
 
 				var runnerVerbose = $.Utils.id($.Constants.RUNNER_VERBOSE_CHECKBOX),
-				selectedTest = $.Utils.id($.Constants.RUNNER_SELECTOR);
+					selectedTest = $.Utils.id($.Constants.RUNNER_SELECTOR);
 
 				if(!runnerVerbose){ $.Exception.raise($.Exception.type.DomObjectNotFound, $.Constants.RUNNER_VERBOSE_CHECKBOX + " was not found."); }
 				if(!selectedTest){ $.Exception.raise($.Exception.type.DomObjectNotFound, $.Constants.RUNNER_SELECTOR + " was not found."); }
@@ -104,11 +98,16 @@
 
 		},
 
+		loading: function (startLoading){
+			document.body.setAttribute("class", (startLoading ? "jsur_loading" : ""));
+		},
+
 		complete: function(){
 			var endTime = (new Date().getTime() - _startTime);
-			$.Utils.id($.Constants.RUNNER_STATUS_DIV).innerHTML = endTime + " ms elapsed";
+			$.Utils.id($.Constants.RUNNER_STATUS_DIV).innerHTML = endTime + "ms elapsed ::";
 			$.Logger.warn("<br />Completed Test Run! (" + endTime + " ms)");
 			$.Event.trigger($.Event.eventTypes.ApplicationState);
+			this.loading(false);
 		},
 
 		loadTestSuites: function (){
@@ -194,8 +193,7 @@
 				this.resetMarkup();
 			}
 
-			$.Logger.warn("Running " + (suite.suiteName || "unnamed test suite"));
-			$.Logger.warn(suite.tests.length + " tests found");
+			$.Logger.warn("<strong>Running " + (suite.suiteName || "unnamed test suite") + " :: " + suite.tests.length + " tests found</strong>");
 			$.Logger.log("<strong>" + suite.suiteName + "</strong>");
 
 		}

@@ -10,7 +10,7 @@ See the jsUnity Wiki as well for test helpers.
 
 --------- Notes
 
-Currently being developed and tested in Chrome.
+Currently being developed and tested in Chrome but should run fine in other browsers (Firefox, Opera, Safari, etc).
 But! Universal support (as per the jsUnity way) will be a definite goal.
 
 

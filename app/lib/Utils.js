@@ -80,7 +80,25 @@
 			for (var i = 0; i < argArray.length; i+=1){
 				this.validateArgumentType(argArray[i], argTypeArray[i]);
 			}
+		},
+		
+		forEach: function (obj, callback, scope){
+			var i;
+			if(obj instanceof Array){
+				for (i = 0; i < obj.length; i++){
+					callback.apply(scope, [i, obj[i]]);
+				}
+			}
+			else{
+				for (i in obj){
+					if(obj.hasOwnProperty(i)){
+						callback.apply(scope, [i, obj[i]]);
+					}
+				}
+			}
 		}
+
+
 
 	};
     
