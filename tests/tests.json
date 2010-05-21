@@ -1,0 +1,6 @@
+[
+    "tests/examples/example_suite.js",
+    "tests/examples/another_suite.js",    
+    "tests/examples/really_long_test.js",
+    "tests/examples/async_test.js"
+]

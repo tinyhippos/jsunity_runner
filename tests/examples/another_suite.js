@@ -1,9 +1,9 @@
 (jsUnityRunner.Tests.AnotherSuite = function($j, $){
 
     return {
-        
-        suiteName: "-- Another Suite",
 
+        suiteName: "-- Another Suite",
+        
         resetMarkup: true,
 
         setUp: function(){

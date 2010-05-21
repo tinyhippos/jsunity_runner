@@ -16,11 +16,11 @@
 		return (e.name && e.message) ? false : true;
 	}
 
-	function _processsor(event, stopTime, errorMessage){
+	function _processor(event, stopTime, errorMessage){
 		
 		if (_terminated) {
 			(_resumeEvent = function (){
-				_processsor(event, stopTime, errorMessage);
+				_processor(event, stopTime, errorMessage);
 			});
 			return;
 		}
@@ -30,7 +30,7 @@
 		if(_asyncProcessShouldWait && stopTime > now){
 
 			setTimeout(function() {
-				_processsor(event, stopTime, errorMessage);
+				_processor(event, stopTime, errorMessage);
 
 			}, 100);
 		}
@@ -196,7 +196,7 @@
 					_currentSuite.setUp();
 				}
 
-				_processsor($.Event.eventTypes.asyncTestRun, (new Date()).getTime() + _waitInterval, "Failed at SetUp :: ");
+				_processor($.Event.eventTypes.asyncTestRun, (new Date()).getTime() + _waitInterval, "Failed at SetUp :: ");
 			}
 			catch(e){
 
@@ -207,7 +207,7 @@
 				_currentTest.failed = true;
 				_currentTest.messages.push("Failed at SetUp with error: " + e);
 
-				_processsor($.Event.eventTypes.asyncTestRun, (new Date()).getTime() + _waitInterval, "Failed at SetUp :: ");
+				_processor($.Event.eventTypes.asyncTestRun, (new Date()).getTime() + _waitInterval, "Failed at SetUp :: ");
 			}
 		},
 
@@ -216,7 +216,7 @@
 			try{
 				_currentTest.fn.call(_currentSuite.scope);
 
-				_processsor($.Event.eventTypes.asyncTearDown, (new Date()).getTime() + _waitInterval, "Failed at TestRun :: ");
+				_processor($.Event.eventTypes.asyncTearDown, (new Date()).getTime() + _waitInterval, "Failed at TestRun :: ");
 			}
 			catch(e){
 				if(!_isJSUnityError(e)){
@@ -226,7 +226,7 @@
 				_currentTest.failed = true;
 				_currentTest.messages.push("Failed at TestRun with error: " + e);
 
-				_processsor($.Event.eventTypes.asyncTearDown, (new Date()).getTime(), "Failed at TestRun :: ");
+				_processor($.Event.eventTypes.asyncTearDown, (new Date()).getTime(), "Failed at TestRun :: ");
 			}
 
 		},
@@ -236,7 +236,7 @@
 				if(_currentSuite.tearDown){
 					_currentSuite.tearDown();
 				}
-				_processsor($.Event.eventTypes.asyncProceedToNext, (new Date()).getTime() + _waitInterval, "Failed at TearDown :: ");
+				_processor($.Event.eventTypes.asyncProceedToNext, (new Date()).getTime() + _waitInterval, "Failed at TearDown :: ");
 			}
 			catch(e){
 				if(!_isJSUnityError(e)){
@@ -246,7 +246,7 @@
 				_currentTest.failed = true;
 				_currentTest.messages.push("Failed at TearDown with error: " + e);
 
-				_processsor($.Event.eventTypes.asyncProceedToNext, (new Date()).getTime(), "Failed at TearDown :: ");
+				_processor($.Event.eventTypes.asyncProceedToNext, (new Date()).getTime(), "Failed at TearDown :: ");
 			}
 		},
 

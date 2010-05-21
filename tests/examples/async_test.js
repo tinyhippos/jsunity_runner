@@ -8,13 +8,13 @@
 
         xmlHttp.onreadystatechange = callback;
 
-        xmlHttp.open("GET", "examples/config.xml", true);
+        xmlHttp.open("GET", "tests/examples/config.xml", true);
 
         xmlHttp.send(null);
     }
 
     return {
-
+        
         suiteName: "-- Async Suite",
 
         setUp: function(){

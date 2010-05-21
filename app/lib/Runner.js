@@ -2,7 +2,7 @@
 
 (jsUnityRunner.Runner = function ($){
 
-	var _suites = $.Tests,
+	var _suites,
 		_markup,
 		_results = {
 			"totalTests": 0,
@@ -39,14 +39,34 @@
 
 	return {
 
+		initialize: function () {
+			var _this = this;
+
+			this.registerEvents();
+			
+            this.getTestMarkup(function () {
+				_this.getTestFiles(function() {
+                    
+                    // TODO: do way better
+                    window.setTimeout(function(){
+                        console.log(JSON.stringify($.Tests));
+                        _suites = $.Tests;
+                        _this.loadTestSuites(); 
+                    }, 200);
+                    
+                });
+			});
+		},
+
 		// Public Methods
 		run: function (whatToRun, verbose){
 
-			this.loading(true);
-
 			try{
+		
+				this.loading(true);
 
-				_markup = document.getElementById($.Constants.RUNNER_SELECTOR).innerHTML;
+				document.getElementById($.Constants.MARKUP_DIV).innerHTML = _markup;
+	
 				_progress_failed = false;
 
 				this.reset();
@@ -75,7 +95,73 @@
 				$.Exception.handle(e);
 			}
 
-			return false;
+		},
+
+		// TODO: DRY!
+		getTestMarkup: function (callback){
+
+			var xhr = new XMLHttpRequest();
+
+			xhr.onreadystatechange = function (){
+
+				if(this.readyState === 4) {
+
+					try{
+
+						_markup = this.responseText;
+
+						typeof callback === "function" && callback();
+
+					}
+					catch(e){
+						$.Logger.log(e);
+						$.Exception.handle(e);
+					}
+
+				}
+	
+			};
+
+			xhr.open("GET", $.Config.testsFile, true);
+
+        	xhr.send(null);
+
+		},
+		
+		getTestFiles: function (callback){
+
+			var xhr = new XMLHttpRequest();
+
+			xhr.onreadystatechange = function (){
+
+				if(this.readyState === 4) {
+
+					try{
+                        
+						var testObject = window.JSON.parse(this.responseText);
+                        
+                        $.Utils.forEach(testObject, function(index, testSuite){                                
+                            document.head.appendChild($.Utils.createElement("script", {
+                                "type": "text/javascript",
+                                "src": testSuite
+                            }));
+                        });
+
+						typeof callback === "function" && callback();
+
+					}
+					catch(e){
+						$.Logger.log(e);
+						$.Exception.handle(e);
+					}
+
+				}
+	
+			};
+
+			xhr.open("GET", $.Config.testsFile, true);
+
+        	xhr.send(null);
 
 		},
 
@@ -122,21 +208,21 @@
 
 		loadTestSuites: function (){
 
-			var suite,
-				count = 0,
-				test,
+			var count = 0,
 				appState = $.Persistence.retrieveObject($.Constants.storage.ApplicationState) || null;
 
 			// TODO: put into a UI class
 			if(appState && appState.verbose){
 				$.Utils.id($.Constants.RUNNER_VERBOSE_CHECKBOX).checked = true;
-			}
-
-			for (suite in $.Tests){ if($.Tests.hasOwnProperty(suite)){
-				this.loadOption($.Tests[suite], suite, (appState && appState.selectedTest));
+            }
+                    
+            $.Utils.forEach($.Tests, function(index, suite){
+                console.log(suite.suiteName);
+                this.loadOption(suite, index, (appState && appState.selectedTest));
 				count++;
-			}}
-
+            }, this);
+                
+                
 		},
 
 		loadOption: function (suite, suitePropertyName, selectedPropertyName){

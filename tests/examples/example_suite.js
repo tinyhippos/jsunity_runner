@@ -1,9 +1,9 @@
 (jsUnityRunner.Tests.ExampleSuite =  function($j, $){
 
     return {
-        
-        suiteName: "-- Example Suite",
 
+        suiteName: "-- Example Suite",
+        
         setUp: function(){
             
         },
