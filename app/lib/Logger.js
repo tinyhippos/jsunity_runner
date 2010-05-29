@@ -8,7 +8,7 @@
 		warn: function (msg){
 			if(this.verbose){
 				var d = $.Utils.id($.Constants.INFO_LOGGER_DIV);
-				d.innerHTML += msg + "<br />";
+				d.innerHTML += msg.replace(/<br \/>/, "\n") + "\n";
 				d.scrollTop = d.scrollHeight;
 			}
 		},

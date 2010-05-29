@@ -30,8 +30,7 @@
 		if(_asyncProcessShouldWait && stopTime > now){
 
 			setTimeout(function() {
-				_processor(event, stopTime, errorMessage);
-
+                _processor(event, stopTime, errorMessage);
 			}, 100);
 		}
 		else{

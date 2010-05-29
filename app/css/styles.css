@@ -56,6 +56,10 @@ h3{ font-size: 1.00em; }
 
 .irrelevant{ display: none; }
 
+pre {
+    line-height: 14px;
+}
+
 /*
  * Main Layout
  */

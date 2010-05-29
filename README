@@ -10,26 +10,32 @@ See the jsUnity Wiki as well for test helpers.
 
 --------- Notes
 
-Currently being developed and tested in Chrome but should run fine in other browsers (Firefox, Opera, Safari, etc).
-But! Universal support (as per the jsUnity way) will be a definite goal.
+Currently being developed and tested in Chrome but should run fine in other browsers (Firefox, Opera, Safari, etc), no IE yet.
+But! Universal support (as per the jsUnity way) will be a definite goal. Plus jsunity has a Rhino runner already.
 
 
 
 --------- Getting Started
 
-Place a test file anywhere you want (though tests/ is recommended).
-Then just include it in index.html along with other tests. jsUnityRunner will pick up on it.
+Test Suite objects are specified in "tests/tests.json" and picked up on load.
 
-* Optional Test Suite Properties
-	resetMarkup: resets the test markup before starting suite
+-- DOM content
+Stored by default in "tests/markup.html"
 
-See the examples folder for creating test suites.
+You can also reset your markup each suite by setting "resetMarkup: true" in your suite object. 
+If false it will be loaded once.
+
+-- Examples
+See the examples folder for creating various test suites including asynchronous tests.
+
+-- Customizing Test Configurations
+Check out "app/config.js" for more options such as changing test suite and markup file locations.
+
 
 
 --------- Attributions
 
-
-** Licensed Under **
+-- Licensed Under
 
 The MIT License
 http://www.opensource.org/licenses/mit-license.php
@@ -41,10 +47,10 @@ Dan Silivestru
 
 
 
-** Other **
+-- Other References
 
 jsUnityRunner makes use of the following third party resources. (kudos)
 (See thirdparty/ files for license declaration.)
 
---> jsUnity : Universal JavaScript Testing Framework
---> jQuery JavaScript Library
+--> jsUnity : Universal JavaScript Testing Framework (http://github.com/atesgoral/jsunity)
+--> jQuery JavaScript Library (http://github.com/jquery/jquery)

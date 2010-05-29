@@ -47,9 +47,8 @@
             this.getTestMarkup(function () {
 				_this.getTestFiles(function() {
                     
-                    // TODO: do way better
-                    window.setTimeout(function(){
-                        console.log(JSON.stringify($.Tests));
+                    // TODO: do this WAY better, damn!...
+                    window.setTimeout(function(){                        
                         _suites = $.Tests;
                         _this.loadTestSuites(); 
                     }, 200);
@@ -140,8 +139,8 @@
                         
 						var testObject = window.JSON.parse(this.responseText);
                         
-                        $.Utils.forEach(testObject, function(index, testSuite){                                
-                            document.head.appendChild($.Utils.createElement("script", {
+                        $.Utils.forEach(testObject.tests, function(index, testSuite){                                
+                            document.getElementsByTagName("head")[0].appendChild($.Utils.createElement("script", {
                                 "type": "text/javascript",
                                 "src": testSuite
                             }));
@@ -217,7 +216,6 @@
             }
                     
             $.Utils.forEach($.Tests, function(index, suite){
-                console.log(suite.suiteName);
                 this.loadOption(suite, index, (appState && appState.selectedTest));
 				count++;
             }, this);
