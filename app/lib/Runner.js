@@ -202,7 +202,7 @@
                         }
                     }
 
-                }, 0);
+                }, 10);
 
             }
 
@@ -215,7 +215,7 @@
                             window.setTimeout(function() {
                                 $.Runner.loadTestSuites();
                                 $.Runner.ajaxLoader(false);
-                            }, 0);
+                            }, 10);
                         });
                     }
                 });
@@ -226,7 +226,7 @@
                     window.setTimeout(function() {
                         $.Runner.loadTestSuites();
                         $.Runner.ajaxLoader(false);
-                    }, 0);
+                    }, 10);
                 });
             }
             else {
