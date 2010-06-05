@@ -121,7 +121,7 @@
 	
 			};
 
-			xhr.open("GET", $.Config.testsFile, true);
+			xhr.open("GET", $.Config.markupFile, true);
 
         	xhr.send(null);
 
