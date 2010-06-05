@@ -11,7 +11,8 @@
                 "passedTests": 0
             },
             _progress_failed = false,
-            _startTime;
+            _startTime,
+            _timeStamp = new Date().getTime();
 
     function _countTests(suiteArray){
         var count = 0;
@@ -40,20 +41,13 @@
     return {
 
         initialize: function () {
-            var _this = this;
+
+            this.ajaxLoader(true);
 
             this.registerEvents();
 
             this.getTestMarkup(function () {
-                _this.getTestFiles(function() {
-
-                    // TODO: do this WAY better, damn!...
-                    window.setTimeout(function(){
-                        _suites = $.Tests;
-                        _this.loadTestSuites();
-                    }, 200);
-
-                });
+                $.Runner.getTestFiles();
             });
         },
 
@@ -121,9 +115,38 @@
 
             };
 
-            xhr.open("GET", $.Config.markupFile, true);
+            xhr.open("GET", $.Config.markupFile + "?" + _timeStamp, true);
 
             xhr.send(null);
+
+        },
+
+        ajaxLoader: function(open) {
+            var loaderDiv = jQuery(".runner_loader");
+            if (open) {
+                loaderDiv.removeClass("irrelevant");
+            }
+            else {
+                loaderDiv.addClass("irrelevant");
+            }
+        },
+
+        loadScript: function(node, scriptSrc) {
+
+            node.appendChild($.Utils.createElement("script", {
+                "type": "text/javascript",
+                "src": scriptSrc + "?" + _timeStamp
+            }));
+
+        },
+
+        loadStylesheet: function(node, styleSheetSrc) {
+
+            node.appendChild($.Utils.createElement("link", {
+                "type": "text/css",
+                "rel": "stylesheet",
+                "src": styleSheetSrc + "?" + _timeStamp
+            }));
 
         },
 
@@ -136,33 +159,7 @@
                 if(this.readyState === 4) {
 
                     try{
-
-                        var testObject = window.JSON.parse(this.responseText);
-
-                        $.Utils.forEach(testObject.styles, function(index, styleSheet){
-                            document.getElementsByTagName("head")[0].appendChild($.Utils.createElement("link", {
-                                "type": "text/css",
-                                "rel": "stylesheet",
-                                "src": styleSheet
-                            }));
-                        });
-
-                        $.Utils.forEach(testObject.scripts, function(index, scriptRef){
-                            document.getElementsByTagName("head")[0].appendChild($.Utils.createElement("script", {
-                                "type": "text/javascript",
-                                "src": scriptRef
-                            }));
-                        });
-
-                        $.Utils.forEach(testObject.tests, function(index, testSuite){
-                            document.getElementsByTagName("head")[0].appendChild($.Utils.createElement("script", {
-                                "type": "text/javascript",
-                                "src": testSuite
-                            }));
-                        });
-
-                        typeof callback === "function" && callback();
-
+                        $.Runner.injectFiles(window.JSON.parse(this.responseText));
                     }
                     catch(e){
                         $.Logger.log(e);
@@ -173,9 +170,68 @@
 
             };
 
-            xhr.open("GET", $.Config.testsFile, true);
+            xhr.open("GET", $.Config.testsFile + "?" + _timeStamp, true);
 
             xhr.send(null);
+
+        },
+
+        injectFiles: function(testObject) {
+
+            var head = document.getElementsByTagName("head")[0];
+
+            $.Utils.forEach(testObject.styles, function(index, styleSheet){
+                $.Runner.loadStylesheet(head, styleSheet);
+            });
+
+            function inject(array, callback) {
+
+                var index = 0,
+                    intervalId;
+
+                intervalId = window.setInterval(function(){
+
+                    if (index < array.length) {
+                        $.Runner.loadScript(head, array[index]);
+                        index++;
+                    }
+                    else {
+                        window.clearInterval(intervalId);
+                        if (typeof callback === "function") {
+                            callback();
+                        }
+                    }
+
+                }, 0);
+
+            }
+
+            // load these first
+            if (testObject.scripts) {
+                inject(testObject.scripts, function(){
+                    if (testObject.tests) {
+                        inject(testObject.tests, function() {
+                            _suites = $.Tests;
+                            window.setTimeout(function() {
+                                $.Runner.loadTestSuites();
+                                $.Runner.ajaxLoader(false);
+                            }, 0);
+                        });
+                    }
+                });
+            }
+            else if (testObject.tests) {
+                inject(testObject.tests, function() {
+                    _suites = $.Tests;
+                    window.setTimeout(function() {
+                        $.Runner.loadTestSuites();
+                        $.Runner.ajaxLoader(false);
+                    }, 0);
+                });
+            }
+            else {
+                this.ajaxLoader(false);
+            }
 
         },
 
@@ -194,7 +250,7 @@
             $.Event.on($.Event.eventTypes.ApplicationState, function(){
 
                 var runnerVerbose = $.Utils.id($.Constants.RUNNER_VERBOSE_CHECKBOX),
-                        selectedTest = $.Utils.id($.Constants.RUNNER_SELECTOR);
+                    selectedTest = $.Utils.id($.Constants.RUNNER_SELECTOR);
 
                 if(!runnerVerbose){ $.Exception.raise($.Exception.type.DomObjectNotFound, $.Constants.RUNNER_VERBOSE_CHECKBOX + " was not found."); }
                 if(!selectedTest){ $.Exception.raise($.Exception.type.DomObjectNotFound, $.Constants.RUNNER_SELECTOR + " was not found."); }
@@ -223,7 +279,7 @@
         loadTestSuites: function (){
 
             var count = 0,
-                    appState = $.Persistence.retrieveObject($.Constants.storage.ApplicationState) || null;
+                appState = $.Persistence.retrieveObject($.Constants.storage.ApplicationState) || null;
 
             // TODO: put into a UI class
             if(appState && appState.verbose){
@@ -234,7 +290,6 @@
                 this.loadOption(suite, index, (appState && appState.selectedTest));
                 count++;
             }, this);
-
 
         },
 

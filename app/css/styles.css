@@ -152,3 +152,11 @@ pre {
 .runner button:active {	
 	opacity: 0.5;
 }
+
+.runner_loader {
+    background: #FFFFFF url("../images/load.gif") center no-repeat;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+}
