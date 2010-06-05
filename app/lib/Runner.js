@@ -2,313 +2,313 @@
 
 (jsUnityRunner.Runner = function ($){
 
-	var _suites,
-		_markup,
-		_results = {
-			"totalTests": 0,
-			"completedTests": 0,
-			"failedTests": 0,
-			"passedTests": 0
-		},
-		_progress_failed = false,
-		_startTime;
+    var _suites,
+            _markup,
+            _results = {
+                "totalTests": 0,
+                "completedTests": 0,
+                "failedTests": 0,
+                "passedTests": 0
+            },
+            _progress_failed = false,
+            _startTime;
 
-	function _countTests(suiteArray){
-		var count = 0;
+    function _countTests(suiteArray){
+        var count = 0;
 
-		$.Utils.forEach(suiteArray, function(index, suite){
-			$.Utils.forEach(suite, function(testName, testFunc){
-				if(testName.match(/^test/)){
-					count++;
-				}
-			});
-		});
+        $.Utils.forEach(suiteArray, function(index, suite){
+            $.Utils.forEach(suite, function(testName, testFunc){
+                if(testName.match(/^test/)){
+                    count++;
+                }
+            });
+        });
 
-		return count;
-	}
+        return count;
+    }
 
-	function _suitesToArray(){
-		var temp = [];
-		
-		$.Utils.forEach(_suites, function (index, suite){
-			temp.push(suite);
-		});
-		
-		return temp;
-	}
+    function _suitesToArray(){
+        var temp = [];
 
-	return {
+        $.Utils.forEach(_suites, function (index, suite){
+            temp.push(suite);
+        });
 
-		initialize: function () {
-			var _this = this;
+        return temp;
+    }
 
-			this.registerEvents();
-			
+    return {
+
+        initialize: function () {
+            var _this = this;
+
+            this.registerEvents();
+
             this.getTestMarkup(function () {
-				_this.getTestFiles(function() {
-                    
+                _this.getTestFiles(function() {
+
                     // TODO: do this WAY better, damn!...
-                    window.setTimeout(function(){                        
+                    window.setTimeout(function(){
                         _suites = $.Tests;
-                        _this.loadTestSuites(); 
+                        _this.loadTestSuites();
                     }, 200);
-                    
+
                 });
-			});
-		},
+            });
+        },
 
-		// Public Methods
-		run: function (whatToRun, verbose){
+        // Public Methods
+        run: function (whatToRun, verbose){
 
-			try{
-		
-				this.loading(true);
+            try{
 
-				document.getElementById($.Constants.MARKUP_DIV).innerHTML = _markup;
-	
-				_progress_failed = false;
+                this.loading(true);
 
-				this.reset();
+                document.getElementById($.Constants.MARKUP_DIV).innerHTML = _markup;
 
-				$.Logger.verbose = verbose || false;
-				
-				if(whatToRun === "all"){
-					// TODO: figure out way to do this only once per load and not every run
-					_results.totalTests = _countTests(_suites);
-					_startTime = new Date().getTime();
-					jsUnity.run.apply(jsUnity, _suitesToArray());
-				}
-				else{
-					if(!_suites[whatToRun]){
-						$.Exception.raise($.Exception.types.TestSuite, "Uknown test suite, can not run Test Suite(s).");
-					}else{
-						_results.totalTests = _countTests( [_suites[whatToRun]] );
-						_startTime = new Date().getTime();
-						jsUnity.run(_suites[whatToRun]);
-					}
-				}
+                _progress_failed = false;
 
-			}
-			catch(e){
-				$.Logger.log(e);
-				$.Exception.handle(e);
-			}
+                this.reset();
 
-		},
+                $.Logger.verbose = verbose || false;
 
-		// TODO: DRY!
-		getTestMarkup: function (callback){
+                if(whatToRun === "all"){
+                    // TODO: figure out way to do this only once per load and not every run
+                    _results.totalTests = _countTests(_suites);
+                    _startTime = new Date().getTime();
+                    jsUnity.run.apply(jsUnity, _suitesToArray());
+                }
+                else{
+                    if(!_suites[whatToRun]){
+                        $.Exception.raise($.Exception.types.TestSuite, "Uknown test suite, can not run Test Suite(s).");
+                    }else{
+                        _results.totalTests = _countTests( [_suites[whatToRun]] );
+                        _startTime = new Date().getTime();
+                        jsUnity.run(_suites[whatToRun]);
+                    }
+                }
 
-			var xhr = new XMLHttpRequest();
+            }
+            catch(e){
+                $.Logger.log(e);
+                $.Exception.handle(e);
+            }
 
-			xhr.onreadystatechange = function (){
+        },
 
-				if(this.readyState === 4) {
+        // TODO: DRY!
+        getTestMarkup: function (callback){
 
-					try{
+            var xhr = new XMLHttpRequest();
 
-						_markup = this.responseText;
+            xhr.onreadystatechange = function (){
 
-						typeof callback === "function" && callback();
+                if(this.readyState === 4) {
 
-					}
-					catch(e){
-						$.Logger.log(e);
-						$.Exception.handle(e);
-					}
+                    try{
 
-				}
-	
-			};
+                        _markup = this.responseText;
 
-			xhr.open("GET", $.Config.markupFile, true);
+                        typeof callback === "function" && callback();
 
-        	xhr.send(null);
+                    }
+                    catch(e){
+                        $.Logger.log(e);
+                        $.Exception.handle(e);
+                    }
 
-		},
-		
-		getTestFiles: function (callback){
+                }
 
-			var xhr = new XMLHttpRequest();
+            };
 
-			xhr.onreadystatechange = function (){
+            xhr.open("GET", $.Config.markupFile, true);
 
-				if(this.readyState === 4) {
+            xhr.send(null);
 
-					try{
-                        
-						var testObject = window.JSON.parse(this.responseText);
-                        
-                        $.Utils.forEach(testObject.styles, function(index, styleSheet){                                
+        },
+
+        getTestFiles: function (callback){
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.onreadystatechange = function (){
+
+                if(this.readyState === 4) {
+
+                    try{
+
+                        var testObject = window.JSON.parse(this.responseText);
+
+                        $.Utils.forEach(testObject.styles, function(index, styleSheet){
                             document.getElementsByTagName("head")[0].appendChild($.Utils.createElement("link", {
                                 "type": "text/css",
                                 "rel": "stylesheet",
                                 "src": styleSheet
                             }));
                         });
-                        
-                        $.Utils.forEach(testObject.scripts, function(index, scriptRef){                                
+
+                        $.Utils.forEach(testObject.scripts, function(index, scriptRef){
                             document.getElementsByTagName("head")[0].appendChild($.Utils.createElement("script", {
                                 "type": "text/javascript",
                                 "src": scriptRef
                             }));
                         });
-                        
-                        $.Utils.forEach(testObject.tests, function(index, testSuite){                                
+
+                        $.Utils.forEach(testObject.tests, function(index, testSuite){
                             document.getElementsByTagName("head")[0].appendChild($.Utils.createElement("script", {
                                 "type": "text/javascript",
                                 "src": testSuite
                             }));
                         });
 
-						typeof callback === "function" && callback();
+                        typeof callback === "function" && callback();
 
-					}
-					catch(e){
-						$.Logger.log(e);
-						$.Exception.handle(e);
-					}
+                    }
+                    catch(e){
+                        $.Logger.log(e);
+                        $.Exception.handle(e);
+                    }
 
-				}
-	
-			};
+                }
 
-			xhr.open("GET", $.Config.testsFile, true);
+            };
 
-        	xhr.send(null);
+            xhr.open("GET", $.Config.testsFile, true);
 
-		},
+            xhr.send(null);
 
-		stop: function (){
-			$.API.terminate();
-			this.loading(false);
-		},
+        },
 
-		resume: function (){
-			this.loading(true);
-			$.API.resume();
-		},
+        stop: function (){
+            $.API.terminate();
+            this.loading(false);
+        },
 
-		registerEvents: function(){
+        resume: function (){
+            this.loading(true);
+            $.API.resume();
+        },
 
-			$.Event.on($.Event.eventTypes.ApplicationState, function(){
+        registerEvents: function(){
 
-				var runnerVerbose = $.Utils.id($.Constants.RUNNER_VERBOSE_CHECKBOX),
-					selectedTest = $.Utils.id($.Constants.RUNNER_SELECTOR);
+            $.Event.on($.Event.eventTypes.ApplicationState, function(){
 
-				if(!runnerVerbose){ $.Exception.raise($.Exception.type.DomObjectNotFound, $.Constants.RUNNER_VERBOSE_CHECKBOX + " was not found."); }
-				if(!selectedTest){ $.Exception.raise($.Exception.type.DomObjectNotFound, $.Constants.RUNNER_SELECTOR + " was not found."); }
+                var runnerVerbose = $.Utils.id($.Constants.RUNNER_VERBOSE_CHECKBOX),
+                        selectedTest = $.Utils.id($.Constants.RUNNER_SELECTOR);
 
-				$.Persistence.saveObject($.Constants.storage.ApplicationState, {
-					"verbose": runnerVerbose.checked,
-					"selectedTest": selectedTest.value
-				});
+                if(!runnerVerbose){ $.Exception.raise($.Exception.type.DomObjectNotFound, $.Constants.RUNNER_VERBOSE_CHECKBOX + " was not found."); }
+                if(!selectedTest){ $.Exception.raise($.Exception.type.DomObjectNotFound, $.Constants.RUNNER_SELECTOR + " was not found."); }
 
-			});
+                $.Persistence.saveObject($.Constants.storage.ApplicationState, {
+                    "verbose": runnerVerbose.checked,
+                    "selectedTest": selectedTest.value
+                });
 
-		},
+            });
 
-		loading: function (startLoading){
-			document.body.setAttribute("class", (startLoading ? "jsur_loading" : ""));
-		},
+        },
 
-		complete: function(){
-			var endTime = (new Date().getTime() - _startTime);
-			$.Utils.id($.Constants.RUNNER_STATUS_DIV).innerHTML = endTime + "ms elapsed ::";
-			$.Logger.warn("<br />Completed Test Run! (" + endTime + " ms)");
-			$.Event.trigger($.Event.eventTypes.ApplicationState);
-			this.loading(false);
-		},
+        loading: function (startLoading){
+            document.body.setAttribute("class", (startLoading ? "jsur_loading" : ""));
+        },
 
-		loadTestSuites: function (){
+        complete: function(){
+            var endTime = (new Date().getTime() - _startTime);
+            $.Utils.id($.Constants.RUNNER_STATUS_DIV).innerHTML = endTime + "ms elapsed ::";
+            $.Logger.warn("<br />Completed Test Run! (" + endTime + " ms)");
+            $.Event.trigger($.Event.eventTypes.ApplicationState);
+            this.loading(false);
+        },
 
-			var count = 0,
-				appState = $.Persistence.retrieveObject($.Constants.storage.ApplicationState) || null;
+        loadTestSuites: function (){
 
-			// TODO: put into a UI class
-			if(appState && appState.verbose){
-				$.Utils.id($.Constants.RUNNER_VERBOSE_CHECKBOX).checked = true;
+            var count = 0,
+                    appState = $.Persistence.retrieveObject($.Constants.storage.ApplicationState) || null;
+
+            // TODO: put into a UI class
+            if(appState && appState.verbose){
+                $.Utils.id($.Constants.RUNNER_VERBOSE_CHECKBOX).checked = true;
             }
-                    
+
             $.Utils.forEach($.Tests, function(index, suite){
                 this.loadOption(suite, index, (appState && appState.selectedTest));
-				count++;
+                count++;
             }, this);
-                
-                
-		},
 
-		loadOption: function (suite, suitePropertyName, selectedPropertyName){
-			var el = $.Utils.createElement("option", {
-					"value": suitePropertyName,
-					"innerHTML":  suite.suiteName || "Uknown Test Suite"
-				});
 
-			if(suitePropertyName === selectedPropertyName){
-				el.setAttribute("selected", "selected");
-			}
+        },
 
-			$.Utils.id($.Constants.RUNNER_SELECTOR).appendChild(el);
-		},
+        loadOption: function (suite, suitePropertyName, selectedPropertyName){
+            var el = $.Utils.createElement("option", {
+                "value": suitePropertyName,
+                "innerHTML":  suite.suiteName || "Uknown Test Suite"
+            });
 
-		reset: function (){
-			$.Utils.id($.Constants.PROGRESS_SCROLL).style.width = 0;
-			$.Utils.id($.Constants.PROGRESS_DIV).innerHTML = "";
-			$.Utils.id($.Constants.RUNNER_STATUS_DIV).innerHTML = "";
-			$.Utils.id($.Constants.RUNNER_RESULTS_DIV).innerHTML = "";
-			_results.totalTests = 0;
-			_results.completedTests = 0;
-			_results.failedTests = 0;
-			_results.passedTests = 0;
-			$.Logger.clear();
-		},
+            if(suitePropertyName === selectedPropertyName){
+                el.setAttribute("selected", "selected");
+            }
 
-		resetMarkup: function (){
-			$.Utils.id($.Constants.MARKUP_DIV).innerHTML = _markup;
-		},
+            $.Utils.id($.Constants.RUNNER_SELECTOR).appendChild(el);
+        },
 
-		// updates progress.
-		updateProgress: function (test){
-			try{
-				var str;
+        reset: function (){
+            $.Utils.id($.Constants.PROGRESS_SCROLL).style.width = 0;
+            $.Utils.id($.Constants.PROGRESS_DIV).innerHTML = "";
+            $.Utils.id($.Constants.RUNNER_STATUS_DIV).innerHTML = "";
+            $.Utils.id($.Constants.RUNNER_RESULTS_DIV).innerHTML = "";
+            _results.totalTests = 0;
+            _results.completedTests = 0;
+            _results.failedTests = 0;
+            _results.passedTests = 0;
+            $.Logger.clear();
+        },
 
-				if(test.failed){
-					_results.failedTests++;
-					_progress_failed = true;
-					$.Logger.log('[FAILED]  <span style="color: black">' + test.name + '</span><br />--> ' + test.messages.join("<br />--> "), "red");
-					//$.Logger.warn(test.name + " --> " + error);
-				}
-				else{
-					_results.passedTests++;
-					$.Logger.log('[PASSED]  <span style="color: black">' + test.name + "</span>", "green");
-				}
+        resetMarkup: function (){
+            $.Utils.id($.Constants.MARKUP_DIV).innerHTML = _markup;
+        },
 
-				_results.completedTests++;
-				$.Utils.id($.Constants.PROGRESS_DIV).innerHTML = _results.completedTests + " /" + _results.totalTests;
-				$.Utils.id($.Constants.PROGRESS_SCROLL).style.width = ((_results.completedTests / _results.totalTests) * 100) + "%";
-				$.Utils.id($.Constants.PROGRESS_SCROLL).style.backgroundColor = (_progress_failed ? "red" : "#40D940");
+        // updates progress.
+        updateProgress: function (test){
+            try{
+                var str;
 
-				str =  _results.passedTests + " passed :: " + _results.failedTests + " failed";
-				$.Utils.id($.Constants.RUNNER_RESULTS_DIV).innerHTML = str;
-			}
-			catch(e){
-				$.Exception.handle(e);
-			}
-		},
+                if(test.failed){
+                    _results.failedTests++;
+                    _progress_failed = true;
+                    $.Logger.log('[FAILED]  <span style="color: black">' + test.name + '</span><br />--> ' + test.messages.join("<br />--> "), "red");
+                    //$.Logger.warn(test.name + " --> " + error);
+                }
+                else{
+                    _results.passedTests++;
+                    $.Logger.log('[PASSED]  <span style="color: black">' + test.name + "</span>", "green");
+                }
 
-		notifySuiteStart: function (suite){
+                _results.completedTests++;
+                $.Utils.id($.Constants.PROGRESS_DIV).innerHTML = _results.completedTests + " /" + _results.totalTests;
+                $.Utils.id($.Constants.PROGRESS_SCROLL).style.width = ((_results.completedTests / _results.totalTests) * 100) + "%";
+                $.Utils.id($.Constants.PROGRESS_SCROLL).style.backgroundColor = (_progress_failed ? "red" : "#40D940");
 
-			if(suite.resetMarkup === true) {
-				this.resetMarkup();
-			}
+                str =  _results.passedTests + " passed :: " + _results.failedTests + " failed";
+                $.Utils.id($.Constants.RUNNER_RESULTS_DIV).innerHTML = str;
+            }
+            catch(e){
+                $.Exception.handle(e);
+            }
+        },
 
-			$.Logger.warn("<strong>Running " + (suite.suiteName || "unnamed test suite") + " :: " + suite.tests.length + " tests found</strong>");
-			$.Logger.log("<strong>" + suite.suiteName + "</strong>");
+        notifySuiteStart: function (suite){
 
-		}
+            if(suite.resetMarkup === true) {
+                this.resetMarkup();
+            }
 
-	};
-    
+            $.Logger.warn("<strong>Running " + (suite.suiteName || "unnamed test suite") + " :: " + suite.tests.length + " tests found</strong>");
+            $.Logger.log("<strong>" + suite.suiteName + "</strong>");
+
+        }
+
+    };
+
 }(jsUnityRunner));
 
 
