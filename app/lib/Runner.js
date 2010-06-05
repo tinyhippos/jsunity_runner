@@ -139,6 +139,21 @@
                         
 						var testObject = window.JSON.parse(this.responseText);
                         
+                        $.Utils.forEach(testObject.styles, function(index, styleSheet){                                
+                            document.getElementsByTagName("head")[0].appendChild($.Utils.createElement("link", {
+                                "type": "text/css",
+                                "rel": "stylesheet",
+                                "src": styleSheet
+                            }));
+                        });
+                        
+                        $.Utils.forEach(testObject.scripts, function(index, scriptRef){                                
+                            document.getElementsByTagName("head")[0].appendChild($.Utils.createElement("script", {
+                                "type": "text/javascript",
+                                "src": scriptRef
+                            }));
+                        });
+                        
                         $.Utils.forEach(testObject.tests, function(index, testSuite){                                
                             document.getElementsByTagName("head")[0].appendChild($.Utils.createElement("script", {
                                 "type": "text/javascript",

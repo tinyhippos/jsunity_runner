@@ -32,6 +32,16 @@ See the examples folder for creating various test suites including asynchronous 
 Check out "app/config.js" for more options such as changing test suite and markup file locations.
 
 
+--------- tests.json
+
+In your tests.json you can specify multiple test, script and stylesheet files to include in the runner.
+
+{
+  "tests": [] 
+  "scripts": []
+  "styles": []
+} 
+
 
 --------- Attributions
 
