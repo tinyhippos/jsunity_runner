@@ -43,7 +43,7 @@ textarea, input, button, select{
 input:hover, button:hover, select:hover{
 	cursor: pointer;
 }
-
+	
 h1, h2, h3, p{ margin: 0; }
 
 h1, h2, h3{ text-transform: capitalize; font-weight: bold; font-size: 1.33em; }

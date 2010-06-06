@@ -16,6 +16,8 @@
 
 	"storage": {
 		"ApplicationState": "application_state"
-	}
+	},
+    
+    "asyncLoadInterval": 40,
 
 });
