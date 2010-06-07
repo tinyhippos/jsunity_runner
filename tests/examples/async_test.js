@@ -1,6 +1,6 @@
 (jsUnityRunner.Tests.AsyncTest =  function($j, $){
     var _setUpConfigXML = null,
-        _tearDownConfigXML = null;
+            _tearDownConfigXML = null;
 
     function _makeTestRequest(callback){
 
@@ -14,7 +14,7 @@
     }
 
     return {
-        
+
         suiteName: "-- Async Suite",
 
         setUp: function(){
@@ -162,8 +162,8 @@
             $.API.startAsyncTest();
 
             var xmlHttp = new XMLHttpRequest(),
-            	nodes,
-            	oEvaluator;
+                    nodes,
+                    oEvaluator;
 
             xmlHttp.onreadystatechange = function() {
 
@@ -172,7 +172,7 @@
                     $.API.endAsyncTest(function() {
 
                         oEvaluator = new XPathEvaluator();
-                        	
+
                         nodes = oEvaluator.evaluate("//widget", xmlHttp.responseXML, null, XPathResult.ANY_TYPE, null);
 
                         node = nodes.iterateNext();
@@ -180,7 +180,7 @@
                         $j.assertions.assertTypeOf("object", nodes);
                     }, this);
                 }
-                
+
             };
 
             xmlHttp.open("GET", "examples/config.xml", true);
@@ -196,6 +196,6 @@
         test_a_test_after_async_tests_again: function(){
             $j.assertions.assertNull(null);
         }
-        
+
     }
 }(jsUnity, jsUnityRunner));

@@ -1,27 +1,27 @@
 var jsUnityRunner = function (){
-	return {
-		Tests: {}
-	};
+    return {
+        Tests: {}
+    };
 }();
 
 // ----------------- Initializations ----------------- \\
 
 window.addEventListener("load", function (){
 
-	// Register Events
-	jsUnityRunner.API.registerEvents();
-	jsUnityRunner.Runner.initialize();
-	jsUnityRunner.UI.initialize();
+    // Register Events
+    jsUnityRunner.API.registerEvents();
+    jsUnityRunner.Runner.initialize();
+    jsUnityRunner.UI.initialize();
 
-	// Override API
+    // Override API
     jsUnity.run = jsUnityRunner.API.run;
-	
-	jsUnity.error = function (eStr){
-		jsUnityRunner.Logger.error(eStr);
-	};
-	
-	jsUnity.log = function (eStr){
-		jsUnityRunner.Logger.log(eStr);
-	};
-	
+
+    jsUnity.error = function (eStr){
+        jsUnityRunner.Logger.error(eStr);
+    };
+
+    jsUnity.log = function (eStr){
+        jsUnityRunner.Logger.log(eStr);
+    };
+
 }, false);

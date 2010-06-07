@@ -3,13 +3,13 @@
     return {
 
         suiteName: "-- Example Suite",
-        
+
         setUp: function(){
-            
+
         },
-        
+
         tearDown: function(){
-            
+
         },
 
         test_example: function(){
@@ -19,7 +19,7 @@
         test_example_two: function(){
             $j.assertions.assertNull(null);
         }
-        
+
     };
 
 }(jsUnity, jsUnityRunner));

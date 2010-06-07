@@ -1,279 +1,279 @@
 (jsUnityRunner.API = function ($){
 
-	var _suites = [],
-		_asyncSuiteIndex,
-		_asyncTestIndex,
-		_currentSuite,
-		_currentTest,
-		_asyncProcessShouldWait = false,
-		_defaultWaitInterval = 5000,
-		_waitInterval = 5000,
-		_assertCallbackWasCalled = false,
-		_terminated = false,
-		_resumeEvent;
+    var _suites = [],
+            _asyncSuiteIndex,
+            _asyncTestIndex,
+            _currentSuite,
+            _currentTest,
+            _asyncProcessShouldWait = false,
+            _defaultWaitInterval = 5000,
+            _waitInterval = 5000,
+            _assertCallbackWasCalled = false,
+            _terminated = false,
+            _resumeEvent;
 
-	function _isJSUnityError(e){
-		return (e.name && e.message) ? false : true;
-	}
+    function _isJSUnityError(e){
+        return (e.name && e.message) ? false : true;
+    }
 
-	function _processor(event, stopTime, errorMessage){
-		
-		if (_terminated) {
-			(_resumeEvent = function (){
-				_processor(event, stopTime, errorMessage);
-			});
-			return;
-		}
-		
-		var now = (new Date()).getTime();
+    function _processor(event, stopTime, errorMessage){
 
-		if(_asyncProcessShouldWait && stopTime > now){
-
-			setTimeout(function() {
+        if (_terminated) {
+            (_resumeEvent = function (){
                 _processor(event, stopTime, errorMessage);
-			}, 100);
-		}
-		else{
+            });
+            return;
+        }
 
-			// TODO: figure out logic to stop additional setTimeout fails when expecting a callback assert (with _assertCallbackWasCalled)
-			if (_asyncProcessShouldWait) {
-				_currentTest.failed = true;
-				_currentTest.messages.push(errorMessage + "Test failed due to timeout!");
-			}
+        var now = (new Date()).getTime();
 
-			_asyncProcessShouldWait = false;
-			_assertCallbackWasCalled = false;
+        if(_asyncProcessShouldWait && stopTime > now){
 
-			setTimeout(function (){
-				$.Event.trigger(event);
-			}, 0);
+            setTimeout(function() {
+                _processor(event, stopTime, errorMessage);
+            }, 100);
+        }
+        else{
 
-		}
+            // TODO: figure out logic to stop additional setTimeout fails when expecting a callback assert (with _assertCallbackWasCalled)
+            if (_asyncProcessShouldWait) {
+                _currentTest.failed = true;
+                _currentTest.messages.push(errorMessage + "Test failed due to timeout!");
+            }
 
-	}
+            _asyncProcessShouldWait = false;
+            _assertCallbackWasCalled = false;
 
-	function _applyToCurrentTest(callback, scope){
-		$.Utils.validateArgumentType(callback, "function");
+            setTimeout(function (){
+                $.Event.trigger(event);
+            }, 0);
 
-		try{
-			callback.call(scope);
-		}
-		catch(e){
+        }
 
-			if(!_isJSUnityError(e)){
-				$.Exception.handle(e);
-			}
+    }
 
-			_currentTest.failed = true;
-			_currentTest.messages.push("Failed at TestRun with error: " + e);
+    function _applyToCurrentTest(callback, scope){
+        $.Utils.validateArgumentType(callback, "function");
 
-		}
-	}
+        try{
+            callback.call(scope);
+        }
+        catch(e){
 
-	return {
+            if(!_isJSUnityError(e)){
+                $.Exception.handle(e);
+            }
 
-		// override of jsUnity.run
-		run: function(){
+            _currentTest.failed = true;
+            _currentTest.messages.push("Failed at TestRun with error: " + e);
 
-			var i;
+        }
+    }
 
-			_asyncTestIndex = 0;
-			_asyncSuiteIndex = 0;
-			_suites = [];
-			_terminated = false;
-			_resumeEvent = null;
+    return {
 
-			for (i = 0; i < arguments.length; i++) {
-				// TODO: validate a Test Suite
-				try {
-					_suites.push(jsUnity.compile(arguments[i]));
-				}
-				catch (e) {
-					if($.Console.isAvailable()) {
-						$.Console.error("TestSuite exception :: " + e);
-					}
-					return false;
-				}
-			}
+        // override of jsUnity.run
+        run: function(){
 
-			// initiate asynchronous scenario
-			setTimeout(function (){
-				$.Event.trigger($.Event.eventTypes.asyncSuite);
-			}, 0);
+            var i;
 
-		},
+            _asyncTestIndex = 0;
+            _asyncSuiteIndex = 0;
+            _suites = [];
+            _terminated = false;
+            _resumeEvent = null;
 
-		terminate: function (){
-			if(!_terminated) {
-				_terminated = true;
-			}
-		},
+            for (i = 0; i < arguments.length; i++) {
+                // TODO: validate a Test Suite
+                try {
+                    _suites.push(jsUnity.compile(arguments[i]));
+                }
+                catch (e) {
+                    if($.Console.isAvailable()) {
+                        $.Console.error("TestSuite exception :: " + e);
+                    }
+                    return false;
+                }
+            }
 
-		resume: function (){
-			if(_terminated) {
-				_terminated = false;
-				_resumeEvent.call(this);
-			}
-		},
+            // initiate asynchronous scenario
+            setTimeout(function (){
+                $.Event.trigger($.Event.eventTypes.asyncSuite);
+            }, 0);
 
-		// API methods
-		registerEvents: function(){
+        },
 
-			var i,
-				events = [
-					$.Event.eventTypes.asyncSuite,
-					$.Event.eventTypes.asyncTest,
-					$.Event.eventTypes.asyncSetUp,
-					$.Event.eventTypes.asyncTestRun,
-					$.Event.eventTypes.asyncTearDown,
-					$.Event.eventTypes.asyncProceedToNext
-				],
-				addEventCallback = function(event){
-					return(function(){ $.API[event](); });
-				};
+        terminate: function (){
+            if(!_terminated) {
+                _terminated = true;
+            }
+        },
 
-			for (i = 0; i < events.length; i++) {
-				$.Event.on(events[i], addEventCallback(events[i]));
-			}
+        resume: function (){
+            if(_terminated) {
+                _terminated = false;
+                _resumeEvent.call(this);
+            }
+        },
 
-		},
+        // API methods
+        registerEvents: function(){
 
-		// makes the runner stop at whatever point in a test (setUp, test or tearDown) and loop in _processor
-		startAsyncTest: function(waitInterval) {
-			_asyncProcessShouldWait = true;
-			_waitInterval = waitInterval || _waitInterval;
-			$.Logger.warn(_currentTest.name + " <strong>(Begin Async Wait)</strong>");
-		},
+            var i,
+                    events = [
+                        $.Event.eventTypes.asyncSuite,
+                        $.Event.eventTypes.asyncTest,
+                        $.Event.eventTypes.asyncSetUp,
+                        $.Event.eventTypes.asyncTestRun,
+                        $.Event.eventTypes.asyncTearDown,
+                        $.Event.eventTypes.asyncProceedToNext
+                    ],
+                    addEventCallback = function(event){
+                        return(function(){ $.API[event](); });
+                    };
 
-		endAsyncTest: function(callback, scope) {
-			if(callback){
-				_applyToCurrentTest(callback, scope);
-				_assertCallbackWasCalled = true;
-			}
-			_asyncProcessShouldWait = false;
-			_waitInterval = _defaultWaitInterval;
-			$.Logger.warn(_currentTest.name + " <strong>(End Async Wait)</strong>");
-		},
+            for (i = 0; i < events.length; i++) {
+                $.Event.on(events[i], addEventCallback(events[i]));
+            }
 
-		// async methods
-		// iterate over test suites to be run
-		asyncSuite: function (){
+        },
 
-			// "recursive" base case
-			if(_asyncSuiteIndex < _suites.length){
+        // makes the runner stop at whatever point in a test (setUp, test or tearDown) and loop in _processor
+        startAsyncTest: function(waitInterval) {
+            _asyncProcessShouldWait = true;
+            _waitInterval = waitInterval || _waitInterval;
+            $.Logger.warn(_currentTest.name + " <strong>(Begin Async Wait)</strong>");
+        },
 
-				var suite = _suites[_asyncSuiteIndex];
+        endAsyncTest: function(callback, scope) {
+            if(callback){
+                _applyToCurrentTest(callback, scope);
+                _assertCallbackWasCalled = true;
+            }
+            _asyncProcessShouldWait = false;
+            _waitInterval = _defaultWaitInterval;
+            $.Logger.warn(_currentTest.name + " <strong>(End Async Wait)</strong>");
+        },
 
-				$.Runner.notifySuiteStart(suite);
+        // async methods
+        // iterate over test suites to be run
+        asyncSuite: function (){
 
-				setTimeout(function (){
-					$.Event.trigger($.Event.eventTypes.asyncTest);
-				}, 0);
+            // "recursive" base case
+            if(_asyncSuiteIndex < _suites.length){
 
-			}
-			else{
-				$.Runner.complete();
-			}
+                var suite = _suites[_asyncSuiteIndex];
 
-		},
+                $.Runner.notifySuiteStart(suite);
 
-		asyncTest: function (){
-			
-			_currentSuite = _suites[_asyncSuiteIndex];
-			_currentTest = _suites[_asyncSuiteIndex].tests[_asyncTestIndex];
-			_currentTest.messages = [];
-			_currentTest.failed = false;
+                setTimeout(function (){
+                    $.Event.trigger($.Event.eventTypes.asyncTest);
+                }, 0);
 
-			setTimeout(function (){
-				$.Event.trigger($.Event.eventTypes.asyncSetUp);
-			}, 0);
-		},
+            }
+            else{
+                $.Runner.complete();
+            }
 
-		asyncSetUp: function(){
-			try{
-				if(_currentSuite.setUp){
-					_currentSuite.setUp();
-				}
+        },
 
-				_processor($.Event.eventTypes.asyncTestRun, (new Date()).getTime() + _waitInterval, "Failed at SetUp :: ");
-			}
-			catch(e){
+        asyncTest: function (){
 
-				if(!_isJSUnityError(e)){
-					$.Exception.handle(e);
-				}
+            _currentSuite = _suites[_asyncSuiteIndex];
+            _currentTest = _suites[_asyncSuiteIndex].tests[_asyncTestIndex];
+            _currentTest.messages = [];
+            _currentTest.failed = false;
 
-				_currentTest.failed = true;
-				_currentTest.messages.push("Failed at SetUp with error: " + e);
+            setTimeout(function (){
+                $.Event.trigger($.Event.eventTypes.asyncSetUp);
+            }, 0);
+        },
 
-				_processor($.Event.eventTypes.asyncTestRun, (new Date()).getTime() + _waitInterval, "Failed at SetUp :: ");
-			}
-		},
+        asyncSetUp: function(){
+            try{
+                if(_currentSuite.setUp){
+                    _currentSuite.setUp();
+                }
 
-		asyncTestRun: function(){
+                _processor($.Event.eventTypes.asyncTestRun, (new Date()).getTime() + _waitInterval, "Failed at SetUp :: ");
+            }
+            catch(e){
 
-			try{
-				_currentTest.fn.call(_currentSuite.scope);
+                if(!_isJSUnityError(e)){
+                    $.Exception.handle(e);
+                }
 
-				_processor($.Event.eventTypes.asyncTearDown, (new Date()).getTime() + _waitInterval, "Failed at TestRun :: ");
-			}
-			catch(e){
-				if(!_isJSUnityError(e)){
-					$.Exception.handle(e);
-				}
+                _currentTest.failed = true;
+                _currentTest.messages.push("Failed at SetUp with error: " + e);
 
-				_currentTest.failed = true;
-				_currentTest.messages.push("Failed at TestRun with error: " + e);
+                _processor($.Event.eventTypes.asyncTestRun, (new Date()).getTime() + _waitInterval, "Failed at SetUp :: ");
+            }
+        },
 
-				_processor($.Event.eventTypes.asyncTearDown, (new Date()).getTime(), "Failed at TestRun :: ");
-			}
+        asyncTestRun: function(){
 
-		},
+            try{
+                _currentTest.fn.call(_currentSuite.scope);
 
-		asyncTearDown: function(){
-			try{
-				if(_currentSuite.tearDown){
-					_currentSuite.tearDown();
-				}
-				_processor($.Event.eventTypes.asyncProceedToNext, (new Date()).getTime() + _waitInterval, "Failed at TearDown :: ");
-			}
-			catch(e){
-				if(!_isJSUnityError(e)){
-					$.Exception.handle(e);
-				}
+                _processor($.Event.eventTypes.asyncTearDown, (new Date()).getTime() + _waitInterval, "Failed at TestRun :: ");
+            }
+            catch(e){
+                if(!_isJSUnityError(e)){
+                    $.Exception.handle(e);
+                }
 
-				_currentTest.failed = true;
-				_currentTest.messages.push("Failed at TearDown with error: " + e);
+                _currentTest.failed = true;
+                _currentTest.messages.push("Failed at TestRun with error: " + e);
 
-				_processor($.Event.eventTypes.asyncProceedToNext, (new Date()).getTime(), "Failed at TearDown :: ");
-			}
-		},
+                _processor($.Event.eventTypes.asyncTearDown, (new Date()).getTime(), "Failed at TestRun :: ");
+            }
 
-		asyncProceedToNext: function() {
+        },
 
-			$.Runner.updateProgress(_currentTest);
+        asyncTearDown: function(){
+            try{
+                if(_currentSuite.tearDown){
+                    _currentSuite.tearDown();
+                }
+                _processor($.Event.eventTypes.asyncProceedToNext, (new Date()).getTime() + _waitInterval, "Failed at TearDown :: ");
+            }
+            catch(e){
+                if(!_isJSUnityError(e)){
+                    $.Exception.handle(e);
+                }
 
-			_asyncTestIndex++;
+                _currentTest.failed = true;
+                _currentTest.messages.push("Failed at TearDown with error: " + e);
 
-			if(_asyncTestIndex < _currentSuite.tests.length){
+                _processor($.Event.eventTypes.asyncProceedToNext, (new Date()).getTime(), "Failed at TearDown :: ");
+            }
+        },
 
-				setTimeout(function (){
-					$.Event.trigger($.Event.eventTypes.asyncTest);
-				}, 0);
+        asyncProceedToNext: function() {
 
-			}
-			else{
-				// all done, go to next Test Suite
-				_asyncSuiteIndex++;
-				_asyncTestIndex = 0;
+            $.Runner.updateProgress(_currentTest);
 
-				setTimeout(function (){
-					$.Event.trigger($.Event.eventTypes.asyncSuite);
-				}, 0);
-			}
-		}
+            _asyncTestIndex++;
+
+            if(_asyncTestIndex < _currentSuite.tests.length){
+
+                setTimeout(function (){
+                    $.Event.trigger($.Event.eventTypes.asyncTest);
+                }, 0);
+
+            }
+            else{
+                // all done, go to next Test Suite
+                _asyncSuiteIndex++;
+                _asyncTestIndex = 0;
+
+                setTimeout(function (){
+                    $.Event.trigger($.Event.eventTypes.asyncSuite);
+                }, 0);
+            }
+        }
 
 
-	};
+    };
 
 }(jsUnityRunner));

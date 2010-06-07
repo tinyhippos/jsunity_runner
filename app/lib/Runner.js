@@ -187,7 +187,7 @@
             function inject(array, callback) {
 
                 var index = 0,
-                    intervalId;
+                        intervalId;
 
                 intervalId = window.setInterval(function(){
 
@@ -250,7 +250,7 @@
             $.Event.on($.Event.eventTypes.ApplicationState, function(){
 
                 var runnerVerbose = $.Utils.id($.Constants.RUNNER_VERBOSE_CHECKBOX),
-                    selectedTest = $.Utils.id($.Constants.RUNNER_SELECTOR);
+                        selectedTest = $.Utils.id($.Constants.RUNNER_SELECTOR);
 
                 if(!runnerVerbose){ $.Exception.raise($.Exception.type.DomObjectNotFound, $.Constants.RUNNER_VERBOSE_CHECKBOX + " was not found."); }
                 if(!selectedTest){ $.Exception.raise($.Exception.type.DomObjectNotFound, $.Constants.RUNNER_SELECTOR + " was not found."); }
@@ -279,7 +279,7 @@
         loadTestSuites: function (){
 
             var count = 0,
-                appState = $.Persistence.retrieveObject($.Constants.storage.ApplicationState) || null;
+                    appState = $.Persistence.retrieveObject($.Constants.storage.ApplicationState) || null;
 
             // TODO: put into a UI class
             if(appState && appState.verbose){

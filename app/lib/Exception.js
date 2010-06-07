@@ -1,58 +1,58 @@
 (jsUnityRunner.Exception = function ($){
 
-	return {
+    return {
 
-		types: {
-			ArgumentLength: "ArgumentLength",
-			ArgumentType: "ArgumentType",
-			Argument: "Argument",
-			DomObjectNotFound: "DomObjectNotFound",
-			MethodNotImplemented: "MethodNotImplemented",
-			InvalidState: "InvalidState",
-			TestSuite: "TestSuiteException",
-			ConsoleNotFound: "ConsoleNotFound",
-			ConsoleMethodNotFound: "ConsoleMethodNotFound"
-		},
+        types: {
+            ArgumentLength: "ArgumentLength",
+            ArgumentType: "ArgumentType",
+            Argument: "Argument",
+            DomObjectNotFound: "DomObjectNotFound",
+            MethodNotImplemented: "MethodNotImplemented",
+            InvalidState: "InvalidState",
+            TestSuite: "TestSuiteException",
+            ConsoleNotFound: "ConsoleNotFound",
+            ConsoleMethodNotFound: "ConsoleMethodNotFound"
+        },
 
-		handle: function(exception, reThrow){
+        handle: function(exception, reThrow){
 
-			$.Utils.validateNumberOfArguments(1, 2, arguments.length);
+            $.Utils.validateNumberOfArguments(1, 2, arguments.length);
 
-			reThrow = reThrow || false;
+            reThrow = reThrow || false;
 
-			var eMsg = (exception.name || "no name provided") + "\n\n" +  (exception.message || "exception caught!"),
-			msg = eMsg+"\n\n"+(exception.stack || "*no stack provided*")+"\n\n";
+            var eMsg = (exception.name || "no name provided") + "\n\n" +  (exception.message || "exception caught!"),
+                    msg = eMsg+"\n\n"+(exception.stack || "*no stack provided*")+"\n\n";
 
-			if($.Console.isAvailable()){
-				$.Console.error(msg);
-			}
+            if($.Console.isAvailable()){
+                $.Console.error(msg);
+            }
 
-			if (reThrow){
-				throw exception;
-			}
+            if (reThrow){
+                throw exception;
+            }
 
-		},
+        },
 
-		raise: function(exceptionType, message, customExceptionObject){
-			$.Utils.validateNumberOfArguments(1, 3, arguments.length);
+        raise: function(exceptionType, message, customExceptionObject){
+            $.Utils.validateNumberOfArguments(1, 3, arguments.length);
 
-			var obj = customExceptionObject || {};
-			message = message || "";
+            var obj = customExceptionObject || {};
+            message = message || "";
 
-			$.Utils.validateMultipleArgumentTypes([exceptionType, message, obj], ['string', 'string', 'object']);
+            $.Utils.validateMultipleArgumentTypes([exceptionType, message, obj], ['string', 'string', 'object']);
 
-			obj.name = exceptionType;
-			obj.type = exceptionType;
-			obj.message = message;
+            obj.name = exceptionType;
+            obj.type = exceptionType;
+            obj.message = message;
 
-			if($.Console.isAvailable()){
-				$.Console.error(obj);
-			}
+            if($.Console.isAvailable()){
+                $.Console.error(obj);
+            }
 
-			throw obj;
-		}
+            throw obj;
+        }
 
 
-	};
+    };
 
 }(jsUnityRunner));
