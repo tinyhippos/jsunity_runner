@@ -4,6 +4,8 @@
 
         suiteName: "-- Example Suite",
 
+        category: "General", 
+
         setUp: function(){
 
         },

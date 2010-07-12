@@ -4,6 +4,8 @@
 
         suiteName: "-- ReallyLongTest Suite",
 
+        category: "General", 
+
         setUp: function(){
 
         },

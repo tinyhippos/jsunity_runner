@@ -12,27 +12,32 @@
             },
             _progress_failed = false,
             _startTime,
-            _timeStamp = new Date().getTime();
+            _timeStamp = new Date().getTime(),
+            _category = undefined;
 
     function _countTests(suiteArray){
         var count = 0;
 
         $.Utils.forEach(suiteArray, function(index, suite){
-            $.Utils.forEach(suite, function(testName, testFunc){
-                if(testName.match(/^test/)){
-                    count++;
-                }
-            });
+            if (_category === "all" || (_category && suite.category === _category)) {
+                $.Utils.forEach(suite, function(testName, testFunc){
+                    if(testName.match(/^test/)){
+                        count++;
+                    }
+                });
+            }
         });
 
         return count;
     }
 
-    function _suitesToArray(){
+    function _compileSuitesToArray(){
         var temp = [];
 
         $.Utils.forEach(_suites, function (index, suite){
-            temp.push(suite);
+            if (_category === "all" || _category === suite.category) {
+                temp.push(suite);
+            }
         });
 
         return temp;
@@ -52,9 +57,11 @@
         },
 
         // Public Methods
-        run: function (whatToRun, verbose){
+        run: function (suiteToRun, category, verbose){
 
             try{
+
+                _category = category;
 
                 this.loading(true);
 
@@ -66,19 +73,19 @@
 
                 $.Logger.verbose = verbose || false;
 
-                if(whatToRun === "all"){
+                if(suiteToRun === "all"){
                     // TODO: figure out way to do this only once per load and not every run
                     _results.totalTests = _countTests(_suites);
                     _startTime = new Date().getTime();
-                    jsUnity.run.apply(jsUnity, _suitesToArray());
+                    jsUnity.run.apply(jsUnity, _compileSuitesToArray());
                 }
                 else{
-                    if(!_suites[whatToRun]){
+                    if(!_suites[suiteToRun]){
                         $.Exception.raise($.Exception.types.TestSuite, "Uknown test suite, can not run Test Suite(s).");
                     }else{
-                        _results.totalTests = _countTests( [_suites[whatToRun]] );
+                        _results.totalTests = _countTests( [_suites[suiteToRun]] );
                         _startTime = new Date().getTime();
-                        jsUnity.run(_suites[whatToRun]);
+                        jsUnity.run(_suites[suiteToRun]);
                     }
                 }
 
@@ -187,7 +194,7 @@
             function inject(array, callback) {
 
                 var index = 0,
-                        intervalId;
+                    intervalId;
 
                 intervalId = window.setInterval(function(){
 
@@ -202,7 +209,7 @@
                         }
                     }
 
-                }, $.Constants.asyncLoadInterval);
+                }, 10);
 
             }
 
@@ -213,9 +220,9 @@
                         inject(testObject.tests, function() {
                             _suites = $.Tests;
                             window.setTimeout(function() {
-                                $.Runner.loadTestSuites();
+                                $.Runner.loadTestSuitesIntoUI();
                                 $.Runner.ajaxLoader(false);
-                            }, 100);
+                            }, 10);
                         });
                     }
                 });
@@ -224,9 +231,9 @@
                 inject(testObject.tests, function() {
                     _suites = $.Tests;
                     window.setTimeout(function() {
-                        $.Runner.loadTestSuites();
+                        $.Runner.loadTestSuitesIntoUI();
                         $.Runner.ajaxLoader(false);
-                    }, 100);
+                    }, 10);
                 });
             }
             else {
@@ -250,14 +257,17 @@
             $.Event.on($.Event.eventTypes.ApplicationState, function(){
 
                 var runnerVerbose = $.Utils.id($.Constants.RUNNER_VERBOSE_CHECKBOX),
-                        selectedTest = $.Utils.id($.Constants.RUNNER_SELECTOR);
+                    selectedTest = $.Utils.id($.Constants.RUNNER_SELECTOR),
+                    selectedCategory = $.Utils.id($.Constants.RUNNER_CATEGORY_SELECTOR);
 
                 if(!runnerVerbose){ $.Exception.raise($.Exception.type.DomObjectNotFound, $.Constants.RUNNER_VERBOSE_CHECKBOX + " was not found."); }
                 if(!selectedTest){ $.Exception.raise($.Exception.type.DomObjectNotFound, $.Constants.RUNNER_SELECTOR + " was not found."); }
+                if(!selectedCategory){ $.Exception.raise($.Exception.type.DomObjectNotFound, $.Constants.RUNNER_CATEGORY_SELECTOR + " was not found."); }
 
                 $.Persistence.saveObject($.Constants.storage.ApplicationState, {
                     "verbose": runnerVerbose.checked,
-                    "selectedTest": selectedTest.value
+                    "selectedTest": selectedTest.value,
+                    "selectedCategory": selectedCategory.value
                 });
 
             });
@@ -276,10 +286,22 @@
             this.loading(false);
         },
 
-        loadTestSuites: function (){
+        // TODO: do this method a lot better
+        loadTestSuitesIntoUI: function (optionalCategory){
 
-            var count = 0,
-                    appState = $.Persistence.retrieveObject($.Constants.storage.ApplicationState) || null;
+            var appState = $.Persistence.retrieveObject($.Constants.storage.ApplicationState) || null,
+                categories = {},
+                testSelector = $.Utils.id($.Constants.RUNNER_SELECTOR),
+                categorySelector = $.Utils.id($.Constants.RUNNER_CATEGORY_SELECTOR),
+                validCategory = false;
+
+            _category = optionalCategory || (appState && appState.selectedCategory);
+
+            testSelector.innerHTML = "";
+            categorySelector.innerHTML = "";
+
+            this.loadOption(testSelector, "all", "Run All Suites");
+            this.loadOption(categorySelector, "all", "All Categories");
 
             // TODO: put into a UI class
             if(appState && appState.verbose){
@@ -287,23 +309,42 @@
             }
 
             $.Utils.forEach($.Tests, function(index, suite){
-                this.loadOption(suite, index, (appState && appState.selectedTest));
-                count++;
+                if (suite.category && !categories[suite.category]) {
+                    categories[suite.category] = suite.category;
+
+                    if (suite.category === _category) {
+                        validCategory = true;
+                    }
+                }
+            }, this);
+
+            if (!validCategory) _category = "all";
+
+            $.Utils.forEach($.Tests, function(index, suite){
+
+                if (_category === "all" || _category === suite.category) {
+                    this.loadOption(testSelector, index, suite.suiteName, (appState && appState.selectedTest));
+                }
+
+            }, this);
+
+            $.Utils.forEach(categories, function(categoryType) {
+                this.loadOption(categorySelector, categoryType, categoryType, _category);
             }, this);
 
         },
 
-        loadOption: function (suite, suitePropertyName, selectedPropertyName){
+        loadOption: function (node, value, innerText, selectedValue){
             var el = $.Utils.createElement("option", {
-                "value": suitePropertyName,
-                "innerHTML":  suite.suiteName || "Uknown Test Suite"
+                "value": value,
+                "innerText":  innerText || "Uknown"
             });
 
-            if(suitePropertyName === selectedPropertyName){
+            if(value === selectedValue){
                 el.setAttribute("selected", "selected");
             }
 
-            $.Utils.id($.Constants.RUNNER_SELECTOR).appendChild(el);
+            node.appendChild(el);
         },
 
         reset: function (){
@@ -365,6 +406,3 @@
     };
 
 }(jsUnityRunner));
-
-
-

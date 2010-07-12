@@ -17,6 +17,8 @@
 
         suiteName: "-- Async Suite",
 
+        category: "XHR",         
+
         setUp: function(){
             $.API.startAsyncTest();
 

@@ -4,6 +4,8 @@
 
         suiteName: "-- Another Suite",
 
+        category: "General", 
+
         resetMarkup: true,
 
         setUp: function(){
