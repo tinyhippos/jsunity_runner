@@ -209,7 +209,7 @@
                         }
                     }
 
-                }, 10);
+                }, $.Constants.ASYNC_LOAD_INTERVAL);
 
             }
 
@@ -222,7 +222,7 @@
                             window.setTimeout(function() {
                                 $.Runner.loadTestSuitesIntoUI();
                                 $.Runner.ajaxLoader(false);
-                            }, 10);
+                            }, $.Constants.ASYNC_LOAD_INTERVAL);
                         });
                     }
                 });
@@ -233,7 +233,7 @@
                     window.setTimeout(function() {
                         $.Runner.loadTestSuitesIntoUI();
                         $.Runner.ajaxLoader(false);
-                    }, 10);
+                    }, $.Constants.ASYNC_LOAD_INTERVAL);
                 });
             }
             else {
