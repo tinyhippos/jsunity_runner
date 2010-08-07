@@ -159,12 +159,20 @@
 		// iterate over test suites to be run
 		asyncSuite: function (){
 
+			if(_currentSuite && _currentSuite.scope && _currentSuite.scope.tearDownSuite && typeof _currentSuite.scope.tearDownSuite === "function") {
+				_currentSuite.scope.tearDownSuite.apply();
+			}
+			
 			// "recursive" base case
 			if(_asyncSuiteIndex < _suites.length){
 
-				var suite = _suites[_asyncSuiteIndex];
+				_currentSuite = _suites[_asyncSuiteIndex];
 
-				$.Runner.notifySuiteStart(suite);
+				if(_currentSuite && _currentSuite.setUpSuite && typeof _currentSuite.setUpSuite === "function") {
+					_currentSuite.setUpSuite.apply();
+				}
+
+				$.Runner.notifySuiteStart(_currentSuite);
 
 				setTimeout(function (){
 					$.Event.trigger($.Event.eventTypes.asyncTest);
@@ -179,7 +187,6 @@
 
 		asyncTest: function (){
 			
-			_currentSuite = _suites[_asyncSuiteIndex];
 			_currentTest = _suites[_asyncSuiteIndex].tests[_asyncTestIndex];
 			_currentTest.messages = [];
 			_currentTest.failed = false;
