@@ -337,7 +337,7 @@
         loadOption: function (node, value, innerText, selectedValue){
             var el = $.Utils.createElement("option", {
                 "value": value,
-                "innerText":  innerText || "Uknown"
+                "innerHTML":  innerText || "Uknown"
             });
 
             if(value === selectedValue){
