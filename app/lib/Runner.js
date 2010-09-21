@@ -144,7 +144,19 @@ jsUnityRunner.Runner = (function ($, $LAB){
         injectFiles: function(testObject) {
             var head = document.getElementsByTagName("head")[0],
                 timeStamp = "?" + new Date().getTime();
-                
+
+            $.Utils.forEach(testObject.styles, function(index, styleSheet){
+                $.Utils.loadStylesheet(head, styleSheet);
+            });
+
+            $.Utils.forEach(testObject.scripts, function (index, script) {
+                $LAB.script(script);
+            });
+            
+            $.Utils.forEach(testObject.tests, function (index, test) {
+                $LAB.script(test);
+            });
+
             $LAB.wait(function () {
                 // figure out weirdness with this out of sync, (and with LabJS loading sequence)...
                 setTimeout(function () {
@@ -153,19 +165,6 @@ jsUnityRunner.Runner = (function ($, $LAB){
                     $.Runner.ajaxLoader(false);
                 }, 500);
             });
-
-            $.Utils.forEach(testObject.styles, function(index, styleSheet){
-                $.Utils.loadStylesheet(head, styleSheet);
-            });
-
-            $.Utils.forEach(testObject.scripts, function (index, script) {
-                $LAB.script(script + timeStamp);
-            });
-            
-            $.Utils.forEach(testObject.tests, function (index, test) {
-                $LAB.script(test + timeStamp);
-            });
-            
         },
         
         stop: function (){
