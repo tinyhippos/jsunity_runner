@@ -1,19 +1,17 @@
-// ----------------- Runner ----------------- \\
-
-(jsUnityRunner.Runner = function ($){
+jsUnityRunner.Runner = (function ($, $LAB){
 
     var _suites,
-            _markup,
-            _results = {
-                "totalTests": 0,
-                "completedTests": 0,
-                "failedTests": 0,
-                "passedTests": 0
-            },
-            _progress_failed = false,
-            _startTime,
-            _timeStamp = new Date().getTime(),
-            _category = undefined;
+        _markup,
+        _results = {
+            "totalTests": 0,
+            "completedTests": 0,
+            "failedTests": 0,
+            "passedTests": 0
+        },
+        _progress_failed = false,
+        _startTime,
+        _timeStamp = new Date().getTime(),
+        _category = undefined;
 
     function _countTests(suiteArray){
         var count = 0;
@@ -46,11 +44,8 @@
     return {
 
         initialize: function () {
-
             this.ajaxLoader(true);
-
             this.registerEvents();
-
             this.getTestMarkup(function () {
                 $.Runner.getTestFiles();
             });
@@ -58,9 +53,7 @@
 
         // Public Methods
         run: function (suiteToRun, category, verbose){
-
-            try{
-
+            try {
                 _category = category;
 
                 this.loading(true);
@@ -94,38 +87,28 @@
                 $.Logger.log(e);
                 $.Exception.handle(e);
             }
-
         },
 
         // TODO: DRY!
         getTestMarkup: function (callback){
-
             var xhr = new XMLHttpRequest();
 
             xhr.onreadystatechange = function (){
-
                 if(this.readyState === 4) {
-
                     try{
-
                         _markup = this.responseText;
 
                         typeof callback === "function" && callback();
-
                     }
                     catch(e){
                         $.Logger.log(e);
                         $.Exception.handle(e);
                     }
-
                 }
-
             };
 
             xhr.open("GET", $.Config.markupFile + "?" + _timeStamp, true);
-
             xhr.send(null);
-
         },
 
         ajaxLoader: function(open) {
@@ -136,35 +119,13 @@
             else {
                 loaderDiv.addClass("irrelevant");
             }
-        },
-
-        loadScript: function(node, scriptSrc) {
-
-            node.appendChild($.Utils.createElement("script", {
-                "type": "text/javascript",
-                "src": scriptSrc + "?" + _timeStamp
-            }));
-
-        },
-
-        loadStylesheet: function(node, styleSheetSrc) {
-
-            node.appendChild($.Utils.createElement("link", {
-                "type": "text/css",
-                "rel": "stylesheet",
-                "src": styleSheetSrc + "?" + _timeStamp
-            }));
-
-        },
+        },        
 
         getTestFiles: function (callback){
-
             var xhr = new XMLHttpRequest();
 
             xhr.onreadystatechange = function (){
-
                 if(this.readyState === 4) {
-
                     try{
                         $.Runner.injectFiles(window.JSON.parse(this.responseText));
                     }
@@ -172,76 +133,41 @@
                         $.Logger.log(e);
                         $.Exception.handle(e);
                     }
-
                 }
-
             };
 
             xhr.open("GET", $.Config.testsFile + "?" + _timeStamp, true);
 
             xhr.send(null);
-
         },
 
         injectFiles: function(testObject) {
-
-            var head = document.getElementsByTagName("head")[0];
-
-            $.Utils.forEach(testObject.styles, function(index, styleSheet){
-                $.Runner.loadStylesheet(head, styleSheet);
+            var head = document.getElementsByTagName("head")[0],
+                timeStamp = "?" + new Date().getTime();
+                
+            $LAB.wait(function () {
+                // figure out weirdness with this out of sync, (and with LabJS loading sequence)...
+                setTimeout(function () {
+                    _suites = $.Tests;
+                    $.Runner.loadTestSuitesIntoUI();
+                    $.Runner.ajaxLoader(false);
+                }, 500);
             });
 
-            function inject(array, callback) {
+            $.Utils.forEach(testObject.styles, function(index, styleSheet){
+                $.Utils.loadStylesheet(head, styleSheet);
+            });
 
-                var index = 0,
-                    intervalId;
-
-                intervalId = window.setInterval(function(){
-
-                    if (index < array.length) {
-                        $.Runner.loadScript(head, array[index]);
-                        index++;
-                    }
-                    else {
-                        window.clearInterval(intervalId);
-                        if (typeof callback === "function") {
-                            callback();
-                        }
-                    }
-
-                }, $.Constants.ASYNC_LOAD_INTERVAL);
-
-            }
-
-            // load these first
-            if (testObject.scripts) {
-                inject(testObject.scripts, function(){
-                    if (testObject.tests) {
-                        inject(testObject.tests, function() {
-                            _suites = $.Tests;
-                            window.setTimeout(function() {
-                                $.Runner.loadTestSuitesIntoUI();
-                                $.Runner.ajaxLoader(false);
-                            }, $.Constants.ASYNC_LOAD_INTERVAL);
-                        });
-                    }
-                });
-            }
-            else if (testObject.tests) {
-                inject(testObject.tests, function() {
-                    _suites = $.Tests;
-                    window.setTimeout(function() {
-                        $.Runner.loadTestSuitesIntoUI();
-                        $.Runner.ajaxLoader(false);
-                    }, $.Constants.ASYNC_LOAD_INTERVAL);
-                });
-            }
-            else {
-                this.ajaxLoader(false);
-            }
-
+            $.Utils.forEach(testObject.scripts, function (index, script) {
+                $LAB.script(script + timeStamp);
+            });
+            
+            $.Utils.forEach(testObject.tests, function (index, test) {
+                $LAB.script(test + timeStamp);
+            });
+            
         },
-
+        
         stop: function (){
             $.API.terminate();
             this.loading(false);
@@ -253,7 +179,6 @@
         },
 
         registerEvents: function(){
-
             $.Event.on($.Event.eventTypes.ApplicationState, function(){
 
                 var runnerVerbose = $.Utils.id($.Constants.RUNNER_VERBOSE_CHECKBOX),
@@ -271,7 +196,6 @@
                 });
 
             });
-
         },
 
         loading: function (startLoading){
@@ -281,20 +205,21 @@
         complete: function(){
             var endTime = (new Date().getTime() - _startTime);
             $.Utils.id($.Constants.RUNNER_STATUS_DIV).innerHTML = endTime + "ms elapsed ::";
-            $.Logger.warn("<br />Completed Test Run! (" + endTime + " ms)");
+            $.Logger.warn("Completed Test Run! (" + endTime + " ms)  " + _results.passedTests + " passed :: " + _results.failedTests + " failed");
             $.Event.trigger($.Event.eventTypes.ApplicationState);
             this.loading(false);
         },
-
+        
         // TODO: do this method a lot better
-        loadTestSuitesIntoUI: function (optionalCategory){
-
+        loadTestSuitesIntoUI: function (optionalCategory){            
             var appState = $.Persistence.retrieveObject($.Constants.storage.ApplicationState) || null,
                 categories = {},
                 testSelector = $.Utils.id($.Constants.RUNNER_SELECTOR),
                 categorySelector = $.Utils.id($.Constants.RUNNER_CATEGORY_SELECTOR),
                 validCategory = false;
 
+            _suites = $.Tests;
+                
             _category = optionalCategory || (appState && appState.selectedCategory);
 
             testSelector.innerHTML = "";
@@ -308,7 +233,7 @@
                 $.Utils.id($.Constants.RUNNER_VERBOSE_CHECKBOX).checked = true;
             }
 
-            $.Utils.forEach($.Tests, function(index, suite){
+            $.Utils.forEach(_suites, function(index, suite){
                 if (suite.category && !categories[suite.category]) {
                     categories[suite.category] = suite.category;
 
@@ -320,18 +245,15 @@
 
             if (!validCategory) _category = "all";
 
-            $.Utils.forEach($.Tests, function(index, suite){
-
+            $.Utils.forEach(_suites, function(index, suite){                
                 if (_category === "all" || _category === suite.category) {
                     this.loadOption(testSelector, index, suite.suiteName, (appState && appState.selectedTest));
                 }
-
             }, this);
 
             $.Utils.forEach(categories, function(categoryType) {
                 this.loadOption(categorySelector, categoryType, categoryType, _category);
             }, this);
-
         },
 
         loadOption: function (node, value, innerText, selectedValue){
@@ -371,12 +293,12 @@
                 if(test.failed){
                     _results.failedTests++;
                     _progress_failed = true;
-                    $.Logger.log('[FAILED]  <span style="color: black">' + test.name + '</span><br />--> ' + test.messages.join("<br />--> "), "red");
+                    $.Logger.log('[FAILED]  <span style="color: black">' + test.name.replace(/^test\s?/, "") + '</span><br />--> ' + test.messages.join("<br />--> "), "red");
                     //$.Logger.warn(test.name + " --> " + error);
                 }
                 else{
                     _results.passedTests++;
-                    $.Logger.log('[PASSED]  <span style="color: black">' + test.name + "</span>", "green");
+                    $.Logger.log('[PASSED]  <span style="color: black">' + test.name.replace(/^test\s?/, "") + "</span>", "green");
                 }
 
                 _results.completedTests++;
@@ -398,11 +320,11 @@
                 this.resetMarkup();
             }
 
-            $.Logger.warn("<strong>Running " + (suite.suiteName || "unnamed test suite") + " :: " + suite.tests.length + " tests found</strong>");
+            $.Logger.warn("Running " + (suite.suiteName || "unnamed test suite") + " :: " + suite.tests.length + " tests found");
             $.Logger.log("<strong>" + suite.suiteName + "</strong>");
 
         }
 
     };
 
-}(jsUnityRunner));
+}(jsUnityRunner, $LAB));

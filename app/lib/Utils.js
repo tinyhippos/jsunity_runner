@@ -1,105 +1,132 @@
 // ----------------- Utils ----------------- \\
 (jsUnityRunner.Utils = function ($){
 
-    return {
+	return {
 
-        createElement: function(elementType, attributes){
+		createElement: function(elementType, attributes){
 
-            attributes = attributes || {};
+			attributes = attributes || {};
 
-            this.validateNumberOfArguments(1, 2, arguments.length);
+			this.validateNumberOfArguments(1, 2, arguments.length);
 
-            var d = document.createElement(elementType),
-                    attr;
+			var d = document.createElement(elementType),
+				attr;
 
-            for (attr in attributes){
+			for (attr in attributes){
 
-                if(attributes.hasOwnProperty(attr)){
-                    switch (attr.toLowerCase()){
+				if(attributes.hasOwnProperty(attr)){
+					switch (attr.toLowerCase()){
 
-                        case "innerhtml":
-                            d.innerHTML = attributes[attr];
-                            break;
+						case "innerhtml":
+							d.innerHTML = attributes[attr];
+						break;
 
-                        case "innertext":
-                            d.innerText = attributes[attr];
-                            break;
+						case "innertext":
+							d.innerText = attributes[attr];
+						break;
 
-                        default:
-                            d.setAttribute(attr,attributes[attr]);
+						default:
+							d.setAttribute(attr,attributes[attr]);
+					}
+
+				}
+
+			}
+			
+			return d;
+		},
+
+		id: function(id){
+			return document.getElementById(id);
+		},
+
+		validateNumberOfArguments: function (lowerBound, upperBound, numberOfArguments){
+
+			if (arguments.length < 3 || arguments.length > 3) {
+				$.Exception.raise($.Exception.types.Argument, "Wrong number of arguments when calling: tinyHippos.Utils.validateNumberOfArguments()");
+			}
+
+			if (isNaN(lowerBound) && isNaN(upperBound) && isNaN(numberOfArguments)) {
+				$.Exception.raise($.Exception.types.ArgumentType, "Arguments are not numbers");
+			}
+
+			lowerBound = parseInt(lowerBound, 10);
+			upperBound = parseInt(upperBound, 10);
+			numberOfArguments = parseInt(numberOfArguments, 10);
+
+			if (numberOfArguments < lowerBound || numberOfArguments > upperBound) {
+				$.Exception.raise($.Exception.types.ArgumentLength, "Wrong number of arguments");
+			}
+
+		},
+
+		validateArgumentType: function (arg, argType){
+			var invalidArg = false;
+			switch (argType) {
+				case "array":
+					if (!arg instanceof Array){ invalidArg = true; }
+				    break;
+				case "date":
+					if (!arg instanceof Date){ invalidArg = true; }
+				    break;
+                case "integer":
+                    if (typeof arg === "number"){
+                        if(arg !== Math.floor(arg)) {
+                            invalidArg = true;
+                        }
                     }
-
-                }
-
-            }
-
-            return d;
-        },
-
-        id: function(id){
-            return document.getElementById(id);
-        },
-
-        validateNumberOfArguments: function (lowerBound, upperBound, numberOfArguments){
-
-            if (arguments.length < 3 || arguments.length > 3) {
-                $.Exception.raise($.Exception.types.Argument, "Wrong number of arguments when calling: tinyHippos.Utils.validateNumberOfArguments()");
-            }
-
-            if (isNaN(lowerBound) && isNaN(upperBound) && isNaN(numberOfArguments)) {
-                $.Exception.raise($.Exception.types.ArgumentType, "Arguments are not numbers");
-            }
-
-            lowerBound = parseInt(lowerBound, 10);
-            upperBound = parseInt(upperBound, 10);
-            numberOfArguments = parseInt(numberOfArguments, 10);
-
-            if (numberOfArguments < lowerBound || numberOfArguments > upperBound) {
-                $.Exception.raise($.Exception.types.ArgumentLength, "Wrong number of arguments");
-            }
-
-        },
-
-        validateArgumentType: function (arg, argType){
-            var invalidArg = false;
-            switch (argType) {
-                case "array":
-                    if (!arg instanceof Array){ invalidArg = true; }
-                    break;
-                case "date":
-                    if (!arg instanceof Date){ invalidArg = true; }
-                    break;
-                default:
-                    if (typeof arg !== argType){ invalidArg = true; }
-                    break;
-            }
-            if(invalidArg) { $.Exception.raise($.Exception.types.ArgumentType, "Invalid Argument type. argument: " + arg + " ==> was expected to be of type: " + argType); }
-        },
-
-        validateMultipleArgumentTypes: function (argArray, argTypeArray){
-            for (var i = 0; i < argArray.length; i+=1){
-                this.validateArgumentType(argArray[i], argTypeArray[i]);
-            }
-        },
-
-        forEach: function (obj, callback, scope){
-            var i;
-            if(obj instanceof Array){
-                for (i = 0; i < obj.length; i++){
-                    callback.apply(scope, [i, obj[i]]);
-                }
-            }
-            else{
-                for (i in obj){
-                    if(obj.hasOwnProperty(i)){
-                        callback.apply(scope, [i, obj[i]]);
+                    else {
+                        invalidArg = true;
                     }
-                }
-            }
+                    break;
+				default:
+					if (typeof arg !== argType){ invalidArg = true; }
+				break;
+			}
+			if(invalidArg) { $.Exception.raise($.Exception.types.ArgumentType, "Invalid Argument type. argument: " + arg + " ==> was expected to be of type: " + argType); }
+		},
+
+		validateMultipleArgumentTypes: function (argArray, argTypeArray){
+			for (var i = 0; i < argArray.length; i+=1){
+				this.validateArgumentType(argArray[i], argTypeArray[i]);
+			}
+		},
+		
+		forEach: function (obj, callback, scope){
+			var i;
+			if(obj instanceof Array){
+				for (i = 0; i < obj.length; i++){
+					if(callback.apply(scope, [i, obj[i]])) {
+                        break;
+                    }
+				}
+			}
+			else{
+				for (i in obj){
+					if(obj.hasOwnProperty(i)){
+						if(callback.apply(scope, [i, obj[i]])) {
+                            break;
+                        }
+					}
+				}
+			}
+		},
+        
+        loadScript: function(node, scriptSrc) {
+            node.appendChild($.Utils.createElement("script", {
+                "type": "text/javascript",
+                "src": scriptSrc + "?" + (new Date().getTime())
+            }));
+        },
+
+        loadStylesheet: function(node, styleSheetSrc) {
+            node.appendChild($.Utils.createElement("link", {
+                "type": "text/css",
+                "rel": "stylesheet",
+                "src": styleSheetSrc + "?" + (new Date().getTime())
+            }));
         }
 
-
-
-    };
-
+	};
+    
 }(jsUnityRunner));

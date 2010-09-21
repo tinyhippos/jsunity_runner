@@ -1,27 +1,14 @@
-var jsUnityRunner = function (){
-    return {
-        Tests: {}
-    };
-}();
+jsUnityRunner.API.registerEvents();
+jsUnityRunner.Runner.initialize();
+jsUnityRunner.UI.initialize();
 
-// ----------------- Initializations ----------------- \\
+// Override API
+jsUnity.run = jsUnityRunner.API.run;
 
-window.addEventListener("load", function (){
+jsUnity.error = function (eStr){
+    jsUnityRunner.Logger.error(eStr);
+};
 
-    // Register Events
-    jsUnityRunner.API.registerEvents();
-    jsUnityRunner.Runner.initialize();
-    jsUnityRunner.UI.initialize();
-
-    // Override API
-    jsUnity.run = jsUnityRunner.API.run;
-
-    jsUnity.error = function (eStr){
-        jsUnityRunner.Logger.error(eStr);
-    };
-
-    jsUnity.log = function (eStr){
-        jsUnityRunner.Logger.log(eStr);
-    };
-
-}, false);
+jsUnity.log = function (eStr){
+    jsUnityRunner.Logger.log(eStr);
+};

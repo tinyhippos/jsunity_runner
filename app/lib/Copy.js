@@ -4,7 +4,7 @@
     return (function(obj) {
 
         var i,
-                newObj = (obj instanceof Array) ? [] : {};
+            newObj = (obj instanceof Array) ? [] : {};
         if( typeof obj === 'number' || typeof obj === 'string' || typeof obj === 'boolean'){
             return obj;
         }

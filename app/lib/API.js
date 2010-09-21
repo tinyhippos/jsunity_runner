@@ -1,4 +1,4 @@
-(jsUnityRunner.API = function ($){
+jsUnityRunner.API = (function ($){
 
 	var _suites = [],
 		_asyncSuiteIndex,
@@ -10,22 +10,22 @@
 		_waitInterval = 5000,
 		_assertCallbackWasCalled = false,
 		_terminated = false,
+		_running = false,
 		_resumeEvent;
 
 	function _isJSUnityError(e){
 		return (e.name && e.message) ? false : true;
 	}
 
-	function _processor(event, stopTime, errorMessage){
-		
+    function _processor(event, stopTime, errorMessage){
 		if (_terminated) {
-			(_resumeEvent = function (){
+			_resumeEvent = (function (){
 				_processor(event, stopTime, errorMessage);
 			});
 			return;
 		}
 		
-		var now = (new Date()).getTime();
+		var now = new Date().getTime();
 
 		if(_asyncProcessShouldWait && stopTime > now){
 
@@ -46,10 +46,9 @@
 
 			setTimeout(function (){
 				$.Event.trigger(event);
-			}, 0);
+			}, 1);
 
-		}
-
+        }
 	}
 
 	function _applyToCurrentTest(callback, scope){
@@ -74,7 +73,8 @@
 
 		// override of jsUnity.run
 		run: function(){
-
+            _running = true;
+            
 			var i;
 
 			_asyncTestIndex = 0;
@@ -95,13 +95,17 @@
 					return false;
 				}
 			}
-
+            
 			// initiate asynchronous scenario
 			setTimeout(function (){
 				$.Event.trigger($.Event.eventTypes.asyncSuite);
-			}, 0);
+			}, 1);
 
 		},
+        
+        running: function () {
+            return _running;            
+        },
 
 		terminate: function (){
 			if(!_terminated) {
@@ -117,8 +121,7 @@
 		},
 
 		// API methods
-		registerEvents: function(){
-
+        registerEvents: function(){
 			var i,
 				events = [
 					$.Event.eventTypes.asyncSuite,
@@ -134,15 +137,14 @@
 
 			for (i = 0; i < events.length; i++) {
 				$.Event.on(events[i], addEventCallback(events[i]));
-			}
-
+            }
 		},
 
 		// makes the runner stop at whatever point in a test (setUp, test or tearDown) and loop in _processor
 		startAsyncTest: function(waitInterval) {
 			_asyncProcessShouldWait = true;
 			_waitInterval = waitInterval || _waitInterval;
-			$.Logger.warn(_currentTest.name + " <strong>(Begin Async Wait)</strong>");
+			$.Logger.warn((_currentTest && _currentTest.name || "") + " (Begin Async Wait)");
 		},
 
 		endAsyncTest: function(callback, scope) {
@@ -152,13 +154,12 @@
 			}
 			_asyncProcessShouldWait = false;
 			_waitInterval = _defaultWaitInterval;
-			$.Logger.warn(_currentTest.name + " <strong>(End Async Wait)</strong>");
+			$.Logger.warn((_currentTest && _currentTest.name || "") + " (End Async Wait)");
 		},
 
 		// async methods
 		// iterate over test suites to be run
-		asyncSuite: function (){
-
+        asyncSuite: function (){
             try {
                 if(_currentSuite && _currentSuite.scope && _currentSuite.scope.tearDownSuite && typeof _currentSuite.scope.tearDownSuite === "function") {
                     _currentSuite.scope.tearDownSuite.apply();
@@ -169,10 +170,10 @@
             }
 			
 			// "recursive" base case
-			if(_asyncSuiteIndex < _suites.length){
-
-				_currentSuite = _suites[_asyncSuiteIndex];
-
+            if(_asyncSuiteIndex < _suites.length){
+                _currentSuite = _suites[_asyncSuiteIndex];
+                $.Runner.notifySuiteStart(_currentSuite);
+                
                 try {
                     if(_currentSuite && _currentSuite.setUpSuite && typeof _currentSuite.setUpSuite === "function") {
                         _currentSuite.setUpSuite.apply();
@@ -182,28 +183,24 @@
                     $.Exception.handle(e);
                 }
 
-				$.Runner.notifySuiteStart(_currentSuite);
-
 				setTimeout(function (){
 					$.Event.trigger($.Event.eventTypes.asyncTest);
-				}, 0);
-
+                }, 1);
 			}
 			else{
+                _running = false;
 				$.Runner.complete();
-			}
-
+            }
 		},
 
-		asyncTest: function (){
-			
+        asyncTest: function (){
 			_currentTest = _suites[_asyncSuiteIndex].tests[_asyncTestIndex];
 			_currentTest.messages = [];
 			_currentTest.failed = false;
 
 			setTimeout(function (){
 				$.Event.trigger($.Event.eventTypes.asyncSetUp);
-			}, 0);
+			}, 1);
 		},
 
 		asyncSetUp: function(){
@@ -238,8 +235,7 @@
 			}
 		},
 
-		asyncProceedToNext: function() {
-
+        asyncProceedToNext: function() {
 			$.Runner.updateProgress(_currentTest);
 
 			_asyncTestIndex++;
@@ -248,7 +244,7 @@
 
 				setTimeout(function (){
 					$.Event.trigger($.Event.eventTypes.asyncTest);
-				}, 0);
+				}, 1);
 
 			}
 			else{
@@ -258,10 +254,9 @@
 
 				setTimeout(function (){
 					$.Event.trigger($.Event.eventTypes.asyncSuite);
-				}, 0);
+				}, 1);
 			}
 		}
-
 
 	};
 

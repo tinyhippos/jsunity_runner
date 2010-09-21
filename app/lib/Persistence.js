@@ -70,7 +70,7 @@
             $.Utils.validateNumberOfArguments(0, 1, arguments.length);
 
             var key,
-                    temp;
+            temp;
 
             prefix = _validateAndSetPrefix(prefix);
 
@@ -85,5 +85,5 @@
 
         }
     };
-
+	
 }(jsUnityRunner));
